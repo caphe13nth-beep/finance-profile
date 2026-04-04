@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xargs grep:*)",
+      "Bash(node -e \"const r = require\\('recharts'\\); console.log\\(['AreaChart','Area','LineChart','Line','ResponsiveContainer','XAxis','YAxis','Tooltip','BarChart','Bar'].map\\(k => k + ':' + !!r[k]\\).join\\(', '\\)\\)\")",
+      "Bash(node -e \"const l = require\\('lucide-react'\\); ['Check','ArrowRight','Sparkles','BadgeCheck'].forEach\\(i => console.log\\(i, !!l[i]\\)\\)\")",
+      "Bash(node -e \"const l = require\\('lucide-react'\\); ['X','Layers','BarChart3','Factory','TrendingUp','ArrowRight','ChevronDown','ExternalLink'].forEach\\(i => console.log\\(i, !!l[i]\\)\\)\")",
+      "Bash(npx next:*)",
+      "Bash(node -e \"const l = require\\('lucide-react'\\); ['Search','Clock','ChevronLeft','ChevronRight','ArrowRight'].forEach\\(i => console.log\\(i, !!l[i]\\)\\)\")",
+      "Bash(node -e \"const m = require\\('next-mdx-remote/rsc'\\); console.log\\(Object.keys\\(m\\)\\)\")",
+      "Bash(node -e \"const l = require\\('lucide-react'\\); ['ArrowLeft','Clock','Calendar','User','Share2','BookOpen'].forEach\\(i => console.log\\(i, !!l[i]\\)\\)\")",
+      "Bash(node -e \"const l = require\\('lucide-react'\\); ['Send','CheckCircle2','AlertCircle','Mail','MapPin','Phone','MessageSquare'].forEach\\(i => console.log\\(i, !!l[i]\\)\\)\")",
+      "Bash(node -e \"try{require\\('zod'\\);console.log\\('zod ok'\\)}catch\\(e\\){console.log\\('no zod'\\)}; try{require\\('react-hook-form'\\);console.log\\('rhf ok'\\)}catch\\(e\\){console.log\\('no rhf'\\)}; try{require\\('@hookform/resolvers/zod'\\);console.log\\('resolver ok'\\)}catch\\(e\\){console.log\\('no resolver'\\)}; try{require\\('resend'\\);console.log\\('resend ok'\\)}catch\\(e\\){console.log\\('no resend'\\)}\")",
+      "Bash(node -e \"const z = require\\('zod'\\); console.log\\(typeof z.object, typeof z.string, typeof z.z\\)\")",
+      "Bash(node -e \"try{const r=require\\('@hookform/resolvers/zod'\\);console.log\\(typeof r.zodResolver\\)}catch\\(e\\){console.log\\(e.message\\)}\")",
+      "Bash(node -e \"console.log\\(require\\('next-themes/package.json'\\).version\\)\")",
+      "Bash(node -e \"const r = require\\('recharts'\\); ['LineChart','Line','AreaChart','Area','PieChart','Pie','Cell','BarChart','Bar','ResponsiveContainer','XAxis','YAxis','Tooltip','Legend','CartesianGrid'].forEach\\(k => console.log\\(k, !!r[k]\\)\\)\")",
+      "Bash(node -e \"const l = require\\('lucide-react'\\); ['LogOut'].forEach\\(i => console.log\\(i, !!l[i]\\)\\)\")",
+      "Bash(ls Z:/webapprepo/finance-profile/.env*)",
+      "Bash(npx shadcn@latest add switch --yes)",
+      "Bash(grep \"checked\\\\|onCheckedChange\" node_modules/@base-ui/react/dist/switch/*.d.ts)",
+      "Bash(node -e \"const l = require\\('lucide-react'\\); console.log\\('Layout:', !!l.Layout, 'ToggleLeft:', !!l.ToggleLeft\\)\")"
+    ]
+  }
+}

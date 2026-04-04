@@ -146,7 +146,7 @@ export function ContactForm() {
       <button
         type="submit"
         disabled={pending}
-        className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-accent px-5 text-sm font-semibold text-white transition-colors hover:bg-green-dark disabled:opacity-50"
+        className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-accent px-5 text-sm font-semibold text-white transition-colors hover:bg-accent/80 disabled:opacity-50"
       >
         {pending ? (
           "Sending..."

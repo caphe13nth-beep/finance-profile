@@ -16,15 +16,18 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
-import { Layout, ToggleLeft } from "lucide-react";
+import { Layout, ToggleLeft, FolderOpen, Image as ImageIcon, Heart } from "lucide-react";
 
 const ADMIN_LINKS = [
-  { label: "Site Settings", href: "/admin/settings", icon: Settings, description: "Identity, hero, stats, social, SEO" },
+  { label: "Site Settings", href: "/admin/settings", icon: Settings, description: "Identity, theme, hero, stats, SEO" },
   { label: "Section Toggles", href: "/admin/settings/sections", icon: ToggleLeft, description: "Toggle homepage sections on/off" },
   { label: "Page Visibility", href: "/admin/settings/pages", icon: Layout, description: "Enable or disable site pages" },
   { label: "Blog Posts", href: "/admin/posts", icon: FileText, description: "Manage articles and insights" },
   { label: "Case Studies", href: "/admin/case-studies", icon: Briefcase, description: "Edit portfolio case studies" },
-  { label: "Contact Submissions", href: "/admin/contacts", icon: MessageSquare, description: "View contact form messages" },
+  { label: "Projects", href: "/admin/projects", icon: FolderOpen, description: "Personal projects and side work" },
+  { label: "Photo Gallery", href: "/admin/gallery", icon: ImageIcon, description: "Upload and manage photos" },
+  { label: "Hobbies", href: "/admin/hobbies", icon: Heart, description: "Hobbies and interests" },
+  { label: "Contacts", href: "/admin/contacts", icon: MessageSquare, description: "View contact form messages" },
   { label: "Subscribers", href: "/admin/subscribers", icon: Mail, description: "Newsletter subscriber list" },
   { label: "Testimonials", href: "/admin/testimonials", icon: Users, description: "Manage client testimonials" },
 ];

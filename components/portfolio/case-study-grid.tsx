@@ -250,8 +250,8 @@ function DetailModal({
 
             {cs.strategy && (
               <div>
-                <h3 className="flex items-center gap-2 font-heading text-sm font-semibold uppercase tracking-wider text-gold">
-                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gold/10 text-xs font-bold">
+                <h3 className="flex items-center gap-2 font-heading text-sm font-semibold uppercase tracking-wider text-chart-2">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-chart-2/10 text-xs font-bold">
                     2
                   </span>
                   Strategy

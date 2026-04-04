@@ -1,11 +1,19 @@
 import dynamic from "next/dynamic";
-import { getPublishedPosts, getCaseStudies, getCareerTimeline, getTestimonials } from "@/lib/supabase/queries";
+import {
+  getPublishedPosts, getCaseStudies, getCareerTimeline, getTestimonials,
+  getProfile, getPersonalProjects, getPhotoGallery, getHobbiesInterests,
+} from "@/lib/supabase/queries";
 import { JsonLd, reviewSchema } from "@/lib/json-ld";
 import { Hero } from "@/components/home/hero";
+import { PersonalIntro } from "@/components/home/personal-intro";
+import { NowSection } from "@/components/home/now-section";
 import { LatestInsights } from "@/components/home/latest-insights";
 import { CareerTimeline } from "@/components/home/career-timeline";
 import { Testimonials } from "@/components/home/testimonials";
 import { NewsletterCta } from "@/components/home/newsletter-cta";
+import { PhotoGallery } from "@/components/home/photo-gallery";
+import { HobbiesSection } from "@/components/home/hobbies-section";
+import { PersonalProjects } from "@/components/home/personal-projects";
 import { ConditionalSection } from "@/components/home/home-sections";
 import { KpiSkeleton, CardSkeleton } from "@/components/ui/skeleton";
 
@@ -25,11 +33,19 @@ export default async function Home() {
     { data: caseStudies },
     { data: timeline },
     { data: testimonials },
+    { data: profile },
+    { data: projects },
+    { data: photos },
+    { data: hobbies },
   ] = await Promise.all([
     getPublishedPosts(),
     getCaseStudies(),
     getCareerTimeline(),
     getTestimonials(),
+    getProfile(),
+    getPersonalProjects(),
+    getPhotoGallery(),
+    getHobbiesInterests(),
   ]);
 
   const latestPosts = (posts ?? []).slice(0, 3);
@@ -45,6 +61,14 @@ export default async function Home() {
         <Hero />
       </ConditionalSection>
 
+      <ConditionalSection sectionKey="personal_intro">
+        <PersonalIntro profile={profile} />
+      </ConditionalSection>
+
+      <ConditionalSection sectionKey="now_section">
+        <NowSection />
+      </ConditionalSection>
+
       <ConditionalSection sectionKey="stats_bar">
         <KpiStats />
       </ConditionalSection>
@@ -55,6 +79,18 @@ export default async function Home() {
 
       <ConditionalSection sectionKey="featured_case_study">
         <FeaturedCaseStudy caseStudy={featuredCase} />
+      </ConditionalSection>
+
+      <ConditionalSection sectionKey="personal_projects">
+        <PersonalProjects projects={projects ?? []} />
+      </ConditionalSection>
+
+      <ConditionalSection sectionKey="photo_gallery">
+        <PhotoGallery photos={photos ?? []} />
+      </ConditionalSection>
+
+      <ConditionalSection sectionKey="hobbies">
+        <HobbiesSection hobbies={hobbies ?? []} />
       </ConditionalSection>
 
       <ConditionalSection sectionKey="career_timeline">

@@ -53,7 +53,7 @@ export function Hero() {
             {hero_content.cta_primary_text && (
               <Link
                 href={hero_content.cta_primary_link}
-                className="inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-green-dark"
+                className="inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-accent/80"
               >
                 {hero_content.cta_primary_text}
                 <ArrowRight className="h-4 w-4" />

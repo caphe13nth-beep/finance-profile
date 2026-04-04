@@ -93,3 +93,30 @@ export async function getResources() {
     .select("*")
     .order("sort_order", { ascending: true });
 }
+
+// ── Personal Projects ────────────────────────────────────
+export async function getPersonalProjects() {
+  const supabase = await createClient();
+  return supabase
+    .from("personal_projects")
+    .select("*")
+    .order("sort_order", { ascending: true });
+}
+
+// ── Photo Gallery ────────────────────────────────────────
+export async function getPhotoGallery() {
+  const supabase = await createClient();
+  return supabase
+    .from("photo_gallery")
+    .select("*")
+    .order("sort_order", { ascending: true });
+}
+
+// ── Hobbies & Interests ──────────────────────────────────
+export async function getHobbiesInterests() {
+  const supabase = await createClient();
+  return supabase
+    .from("hobbies_interests")
+    .select("*")
+    .order("sort_order", { ascending: true });
+}

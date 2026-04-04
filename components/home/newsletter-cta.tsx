@@ -59,7 +59,7 @@ export function NewsletterCta() {
                 <button
                   type="submit"
                   disabled={pending}
-                  className="h-11 shrink-0 rounded-lg bg-accent px-5 text-sm font-semibold text-white transition-colors hover:bg-green-dark disabled:opacity-50"
+                  className="h-11 shrink-0 rounded-lg bg-accent px-5 text-sm font-semibold text-white transition-colors hover:bg-accent/80 disabled:opacity-50"
                 >
                   {pending ? "Subscribing..." : "Subscribe"}
                 </button>

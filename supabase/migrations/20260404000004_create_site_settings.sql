@@ -151,3 +151,39 @@ insert into public.site_settings (key, value) values
     { "emoji": "📚", "text": "Reading: The Psychology of Money by Morgan Housel" }
   ]
 }'::jsonb);
+
+-- 9. Theme settings
+insert into public.site_settings (key, value) values
+('theme', '{
+  "preset": "finance-dark",
+  "colors": {
+    "primary": "#0F172A",
+    "secondary": "#E2E8F0",
+    "background": "#F8FAFC",
+    "accent": "#10B981",
+    "accent_secondary": "#D4A373",
+    "card_bg": "#FFFFFF",
+    "text_primary": "#0F172A",
+    "text_secondary": "#64748B",
+    "border": "#E2E8F0"
+  },
+  "dark_colors": {
+    "primary": "#F8FAFC",
+    "secondary": "#334155",
+    "background": "#0F172A",
+    "accent": "#10B981",
+    "accent_secondary": "#D4A373",
+    "card_bg": "#1E293B",
+    "text_primary": "#F8FAFC",
+    "text_secondary": "#94A3B8",
+    "border": "rgba(248, 250, 252, 0.1)"
+  },
+  "fonts": {
+    "heading": "Space Grotesk",
+    "body": "Manrope",
+    "mono": "JetBrains Mono"
+  },
+  "border_radius": "0.625rem",
+  "enable_dark_mode_toggle": true,
+  "default_dark": true
+}'::jsonb);

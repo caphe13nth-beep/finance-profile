@@ -62,7 +62,7 @@ export function SectionNav({ items }: SectionNavProps) {
                   className={cn(
                     "block rounded-full transition-all duration-200",
                     isActive
-                      ? "h-3 w-3 bg-green shadow-[0_0_8px_rgba(16,185,129,0.4)]"
+                      ? "h-3 w-3 bg-accent shadow-[0_0_8px_rgba(16,185,129,0.4)]"
                       : "h-2 w-2 bg-muted-foreground/40 group-hover:bg-muted-foreground"
                   )}
                 />

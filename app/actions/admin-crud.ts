@@ -15,7 +15,10 @@ type TableName =
   | "contact_submissions"
   | "media_appearances"
   | "career_timeline"
-  | "resources";
+  | "resources"
+  | "personal_projects"
+  | "photo_gallery"
+  | "hobbies_interests";
 
 function admin() {
   return createAdminClient();

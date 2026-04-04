@@ -79,7 +79,7 @@ export function ServiceCard({
         <div className="mt-8 pt-2">
           <Link
             href="/contact"
-            className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-green-dark"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-accent/80"
           >
             {cta}
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />

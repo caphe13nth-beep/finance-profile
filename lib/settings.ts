@@ -13,6 +13,9 @@ export type {
   SocialLinks,
   NowItem,
   NowSection,
+  ThemeColors,
+  ThemeFonts,
+  ThemeSettings,
   SiteSettings,
 } from "@/types/settings";
 

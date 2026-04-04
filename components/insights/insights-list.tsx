@@ -44,7 +44,7 @@ function riskLevel(risks: string | null): { label: string; color: string; bg: st
     return { label: "High", color: "text-destructive", bg: "bg-destructive/10" };
   if (lower.includes("low") || lower.includes("minimal"))
     return { label: "Low", color: "text-accent", bg: "bg-accent/10" };
-  return { label: "Medium", color: "text-gold", bg: "bg-gold/10" };
+  return { label: "Medium", color: "text-chart-2", bg: "bg-chart-2/10" };
 }
 
 /* ── Card ──────────────────────────────────────────── */

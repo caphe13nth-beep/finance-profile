@@ -1,10 +1,7 @@
 import { notFound } from "next/navigation";
-import { getProfile, getCareerTimeline } from "@/lib/supabase/queries";
+import { getProfile, getCareerTimeline, getPhotoGallery, getHobbiesInterests } from "@/lib/supabase/queries";
 import { fetchAllSettings } from "@/lib/supabase/settings";
-import { HeroBio } from "@/components/about/hero-bio";
-import { SkillsGrid } from "@/components/about/skills-grid";
-import { Certifications } from "@/components/about/certifications";
-import { CareerTimeline } from "@/components/home/career-timeline";
+import { AboutLayout } from "@/components/about/about-layout";
 import { siteMetadata } from "@/lib/metadata";
 import { JsonLd, personSchema } from "@/lib/json-ld";
 
@@ -27,9 +24,11 @@ export default async function AboutPage() {
   const settings = await fetchAllSettings();
   if (!settings.page_visibility.about) notFound();
 
-  const [{ data: profile }, { data: timeline }] = await Promise.all([
+  const [{ data: profile }, { data: timeline }, { data: photos }, { data: hobbies }] = await Promise.all([
     getProfile(),
     getCareerTimeline(),
+    getPhotoGallery(),
+    getHobbiesInterests(),
   ]);
 
   const name = profile?.name ?? "Finance Professional";
@@ -51,18 +50,21 @@ export default async function AboutPage() {
           skills,
         })}
       />
-      <HeroBio
+      <AboutLayout
+        mode={settings.site_identity.site_mode}
         profile={{
           name,
           title,
           bio,
           photo_url: photoUrl,
           resume_url: resumeUrl,
+          skills,
+          certifications,
         }}
+        timeline={timeline ?? []}
+        photos={photos ?? []}
+        hobbies={hobbies ?? []}
       />
-      <SkillsGrid skills={skills} />
-      <CareerTimeline entries={timeline ?? []} />
-      <Certifications certifications={certifications} />
     </>
   );
 }

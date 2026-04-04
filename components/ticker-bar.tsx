@@ -19,11 +19,11 @@ function TickerItem({ symbol, value, change, up }: (typeof TICKER_ITEMS)[0]) {
       <span className="font-semibold text-foreground/90">{symbol}</span>
       <span className="font-mono text-xs">{value}</span>
       {up ? (
-        <TrendingUp className="h-3 w-3 text-green" />
+        <TrendingUp className="h-3 w-3 text-accent" />
       ) : (
         <TrendingDown className="h-3 w-3 text-destructive" />
       )}
-      <span className={`font-mono text-xs ${up ? "text-green" : "text-destructive"}`}>
+      <span className={`font-mono text-xs ${up ? "text-accent" : "text-destructive"}`}>
         {change}
       </span>
     </span>

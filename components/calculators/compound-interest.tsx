@@ -78,7 +78,7 @@ export function CompoundInterestCalculator() {
           <p className="text-xs text-muted-foreground">Interest Earned</p>
         </div>
         <div className="rounded-lg bg-muted/50 p-3 text-center">
-          <p className="font-mono text-lg font-bold text-gold">{((final.total / principal - 1) * 100).toFixed(1)}%</p>
+          <p className="font-mono text-lg font-bold text-chart-2">{((final.total / principal - 1) * 100).toFixed(1)}%</p>
           <p className="text-xs text-muted-foreground">Total Return</p>
         </div>
       </div>

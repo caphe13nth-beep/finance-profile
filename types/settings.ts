@@ -101,6 +101,35 @@ export interface NowSection {
   items: NowItem[];
 }
 
+// ── Theme ──────────────────────────────────────────
+export interface ThemeColors {
+  primary: string;
+  secondary: string;
+  background: string;
+  accent: string;
+  accent_secondary: string;
+  card_bg: string;
+  text_primary: string;
+  text_secondary: string;
+  border: string;
+}
+
+export interface ThemeFonts {
+  heading: string;
+  body: string;
+  mono: string;
+}
+
+export interface ThemeSettings {
+  preset: string;
+  colors: ThemeColors;
+  dark_colors: ThemeColors;
+  fonts: ThemeFonts;
+  border_radius: string;
+  enable_dark_mode_toggle: boolean;
+  default_dark: boolean;
+}
+
 // ── Combined Settings ──────────────────────────────
 export interface SiteSettings {
   section_visibility: SectionVisibility;
@@ -111,4 +140,5 @@ export interface SiteSettings {
   stats_bar: StatsBar;
   social_links: SocialLinks;
   now_section: NowSection;
+  theme: ThemeSettings;
 }

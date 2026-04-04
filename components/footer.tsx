@@ -102,7 +102,7 @@ export function Footer() {
           {/* Brand */}
           <div className="space-y-4">
             <Link href="/" className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-md bg-green text-white">
+              <div className="flex h-8 w-8 items-center justify-center rounded-md bg-accent text-white">
                 <TrendingUp className="h-4 w-4" />
               </div>
               <span className="font-heading text-lg font-bold tracking-tight">
@@ -176,12 +176,12 @@ export function Footer() {
               <button
                 type="submit"
                 disabled={status === "loading"}
-                className="h-9 shrink-0 rounded-md bg-green px-3 text-sm font-medium text-white transition-colors hover:bg-green-dark disabled:opacity-50"
+                className="h-9 shrink-0 rounded-md bg-accent px-3 text-sm font-medium text-white transition-colors hover:bg-accent/80 disabled:opacity-50"
               >
                 {status === "loading" ? "..." : "Join"}
               </button>
             </form>
-            {status === "success" && <p className="mt-2 text-xs text-green">Subscribed successfully!</p>}
+            {status === "success" && <p className="mt-2 text-xs text-accent">Subscribed successfully!</p>}
             {status === "error" && <p className="mt-2 text-xs text-destructive">Something went wrong. Try again.</p>}
           </div>
         </div>

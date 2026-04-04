@@ -114,8 +114,8 @@ export function FeaturedCaseStudy({
 
             {caseStudy.strategy && (
               <div className="rounded-xl border border-border bg-card p-6">
-                <h3 className="flex items-center gap-2 font-heading text-sm font-semibold uppercase tracking-wider text-gold">
-                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gold/10 text-xs font-bold">
+                <h3 className="flex items-center gap-2 font-heading text-sm font-semibold uppercase tracking-wider text-chart-2">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-chart-2/10 text-xs font-bold">
                     2
                   </span>
                   Strategy
@@ -177,7 +177,7 @@ export function FeaturedCaseStudy({
 
             <Link
               href={`/portfolio`}
-              className="inline-flex items-center gap-2 self-start rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-green-dark"
+              className="inline-flex items-center gap-2 self-start rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-accent/80"
             >
               <TrendingUp className="h-4 w-4" />
               View All Case Studies

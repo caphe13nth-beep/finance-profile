@@ -28,9 +28,9 @@ interface Resource {
 
 const TYPE_CONFIG: Record<string, { icon: LucideIcon; label: string; color: string }> = {
   whitepaper: { icon: BookOpen, label: "Whitepaper", color: "text-accent" },
-  template: { icon: FileSpreadsheet, label: "Template", color: "text-gold" },
+  template: { icon: FileSpreadsheet, label: "Template", color: "text-chart-2" },
   guide: { icon: FileText, label: "Guide", color: "text-accent" },
-  report: { icon: BarChart3, label: "Report", color: "text-gold" },
+  report: { icon: BarChart3, label: "Report", color: "text-chart-2" },
   other: { icon: FileText, label: "Resource", color: "text-muted-foreground" },
 };
 
@@ -70,7 +70,7 @@ function EmailGate({
       exit={{ opacity: 0, scale: 0.95 }}
       className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-2xl bg-card/95 p-6 backdrop-blur-sm"
     >
-      <Lock className="h-8 w-8 text-gold" />
+      <Lock className="h-8 w-8 text-chart-2" />
       <p className="mt-3 text-center text-sm font-medium text-foreground">
         Enter your email to download
       </p>
@@ -86,7 +86,7 @@ function EmailGate({
         <button
           type="submit"
           disabled={status === "loading"}
-          className="h-9 shrink-0 rounded-md bg-accent px-3 text-sm font-medium text-white hover:bg-green-dark disabled:opacity-50"
+          className="h-9 shrink-0 rounded-md bg-accent px-3 text-sm font-medium text-white hover:bg-accent/80 disabled:opacity-50"
         >
           {status === "loading" ? "..." : "Unlock"}
         </button>
@@ -178,7 +178,7 @@ function ResourceCard({
             {config.label}
           </span>
           {resource.is_gated && !unlocked && (
-            <span className="flex items-center gap-1 text-xs text-gold">
+            <span className="flex items-center gap-1 text-xs text-chart-2">
               <Lock className="h-3 w-3" />
               Gated
             </span>
@@ -203,7 +203,7 @@ function ResourceCard({
 
         <button
           onClick={handleDownload}
-          className="mt-4 inline-flex items-center gap-2 self-start rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-green-dark"
+          className="mt-4 inline-flex items-center gap-2 self-start rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-accent/80"
         >
           <Download className="h-4 w-4" />
           {resource.is_gated && !unlocked ? "Unlock & Download" : "Download"}

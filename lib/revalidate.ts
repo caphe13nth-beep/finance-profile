@@ -31,4 +31,7 @@ export const TABLE_PATHS: Record<string, string[]> = {
   newsletter_subscribers: [],
   contact_submissions: [],
   site_settings: ["/"],
+  personal_projects: ["/", "/about"],
+  photo_gallery: ["/", "/about"],
+  hobbies_interests: ["/", "/about"],
 };

@@ -85,7 +85,7 @@ export function RetirementCalculator() {
           <p className="text-xs text-muted-foreground">Investment Growth</p>
         </div>
         <div className="rounded-lg bg-muted/50 p-3 text-center">
-          <p className="font-mono text-lg font-bold text-gold">{final ? fmt(final.contributions) : "$0"}</p>
+          <p className="font-mono text-lg font-bold text-chart-2">{final ? fmt(final.contributions) : "$0"}</p>
           <p className="text-xs text-muted-foreground">Total Contributed</p>
         </div>
       </div>

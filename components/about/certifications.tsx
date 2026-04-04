@@ -46,8 +46,8 @@ export function Certifications({
               transition={{ duration: 0.4, delay: i * 0.08 }}
               className="group flex gap-4 rounded-xl border border-border bg-card p-5 transition-colors hover:border-accent/40"
             >
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gold/10">
-                <Award className="h-6 w-6 text-gold" />
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-chart-2/10">
+                <Award className="h-6 w-6 text-chart-2" />
               </div>
               <div className="min-w-0">
                 <h3 className="font-heading text-base font-semibold text-foreground">

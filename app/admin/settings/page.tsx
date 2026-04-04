@@ -8,14 +8,17 @@ import {
   BarChart3,
   Link as LinkIcon,
   Search,
+  Palette,
 } from "lucide-react";
 
 const SETTINGS_PAGES = [
   { label: "Site Identity", href: "/admin/settings/general", icon: Globe, description: "Name, tagline, logo, site mode, footer text" },
+  { label: "Theme", href: "/admin/settings/theme", icon: Palette, description: "Colors, fonts, presets, border radius" },
   { label: "Page Visibility", href: "/admin/settings/pages", icon: Layout, description: "Toggle which pages appear in navigation" },
   { label: "Section Toggles", href: "/admin/settings/sections", icon: Eye, description: "Toggle homepage sections on or off" },
   { label: "Hero Content", href: "/admin/settings/hero", icon: FileText, description: "Heading, subheading, CTAs, background style" },
   { label: "Stats Bar", href: "/admin/settings/stats", icon: BarChart3, description: "KPI cards — add, edit, reorder" },
+  { label: "Now Section", href: "/admin/settings/now", icon: FileText, description: "What you're currently working on" },
   { label: "Social Links", href: "/admin/settings/social", icon: LinkIcon, description: "LinkedIn, Twitter, YouTube, and more" },
   { label: "SEO Defaults", href: "/admin/settings/seo", icon: Search, description: "Title template, description, analytics IDs" },
 ];

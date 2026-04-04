@@ -109,7 +109,7 @@ export function LoanCalculator() {
           <p className="text-xs text-muted-foreground">Total Paid</p>
         </div>
         <div className="rounded-lg bg-muted/50 p-3 text-center">
-          <p className="font-mono text-lg font-bold text-gold">{fmt(totalInterest)}</p>
+          <p className="font-mono text-lg font-bold text-chart-2">{fmt(totalInterest)}</p>
           <p className="text-xs text-muted-foreground">Total Interest</p>
         </div>
       </div>
@@ -139,10 +139,10 @@ export function LoanCalculator() {
         </div>
         <div className="flex gap-6 text-xs">
           <span className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-green" /> Principal
+            <span className="h-2.5 w-2.5 rounded-full bg-accent" /> Principal
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-gold" /> Interest
+            <span className="h-2.5 w-2.5 rounded-full bg-chart-2" /> Interest
           </span>
         </div>
       </div>
@@ -174,7 +174,7 @@ export function LoanCalculator() {
                     <td className="px-3 py-2 text-right font-mono text-accent">
                       {fmt(amount - row.balance)}
                     </td>
-                    <td className="px-3 py-2 text-right font-mono text-gold">
+                    <td className="px-3 py-2 text-right font-mono text-chart-2">
                       {fmt(row.payment * row.month - (amount - row.balance))}
                     </td>
                     <td className="px-3 py-2 text-right font-mono">{fmt(row.balance)}</td>

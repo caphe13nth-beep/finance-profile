@@ -2,9 +2,10 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { adminCreate, adminUpdate, adminDeleteRow } from "@/app/actions/admin-crud";
+import { adminCreate, adminUpdate, adminDeleteRow, adminReorder } from "@/app/actions/admin-crud";
 import { AdminShell } from "@/components/admin/admin-shell";
 import { FormModal } from "@/components/admin/form-modal";
+import { SortableList } from "@/components/admin/sortable-list";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 
 interface Testimonial { id: string; name: string; company: string | null; quote: string; avatar_url: string | null; sort_order: number; }
@@ -37,10 +38,12 @@ export default function AdminTestimonialsPage() {
 
   return (
     <AdminShell title="Testimonials" description={`${items.length} testimonials`}
-      actions={<button onClick={() => setModal({ open: true, item: { ...EMPTY, sort_order: items.length } })} className="inline-flex items-center gap-1.5 rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white hover:bg-green-dark"><Plus className="h-4 w-4" /> New</button>}>
-      <div className="space-y-3">
-        {items.map((t) => (
-          <div key={t.id} className="flex items-start gap-4 rounded-xl border border-border bg-card p-4">
+      actions={<button onClick={() => setModal({ open: true, item: { ...EMPTY, sort_order: items.length } })} className="inline-flex items-center gap-1.5 rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white hover:bg-accent/80"><Plus className="h-4 w-4" /> New</button>}>
+
+      {items.length > 0 ? (
+        <SortableList items={items} onReorder={(r) => start(async () => { await adminReorder("testimonials", r, "/admin/testimonials"); })} renderItem={(t, dragHandle) => (
+          <div className="flex items-start gap-3 rounded-xl border border-border bg-card p-4">
+            {dragHandle}
             {t.avatar_url ? <img src={t.avatar_url} alt={t.name} className="h-10 w-10 rounded-full object-cover" /> : <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent/10 font-heading font-bold text-accent">{t.name.charAt(0)}</div>}
             <div className="min-w-0 flex-1">
               <p className="font-medium">{t.name}{t.company && <span className="text-muted-foreground"> — {t.company}</span>}</p>
@@ -51,9 +54,11 @@ export default function AdminTestimonialsPage() {
               <button onClick={() => del(t.id)} className="rounded-md p-1.5 text-destructive hover:bg-destructive/10"><Trash2 className="h-4 w-4" /></button>
             </div>
           </div>
-        ))}
-        {items.length === 0 && <p className="py-8 text-center text-muted-foreground">No testimonials.</p>}
-      </div>
+        )} />
+      ) : (
+        <p className="py-8 text-center text-muted-foreground">No testimonials.</p>
+      )}
+
       <FormModal title={modal.item?.id ? "Edit Testimonial" : "New Testimonial"} open={modal.open} onClose={close}>
         <div className="space-y-4">
           <div><label className={labelCls}>Name *</label><input value={modal.item?.name ?? ""} onChange={(e) => setField("name", e.target.value)} className={inputCls} /></div>
@@ -62,7 +67,7 @@ export default function AdminTestimonialsPage() {
           <div><label className={labelCls}>Avatar URL</label><input value={modal.item?.avatar_url ?? ""} onChange={(e) => setField("avatar_url", e.target.value)} className={inputCls} /></div>
           <div className="flex justify-end gap-2 pt-2">
             <button onClick={close} className="rounded-lg border border-border px-4 py-2 text-sm hover:bg-muted">Cancel</button>
-            <button onClick={save} disabled={pending} className="rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white hover:bg-green-dark disabled:opacity-50">{pending ? "Saving..." : "Save"}</button>
+            <button onClick={save} disabled={pending} className="rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white hover:bg-accent/80 disabled:opacity-50">{pending ? "Saving..." : "Save"}</button>
           </div>
         </div>
       </FormModal>

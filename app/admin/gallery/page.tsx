@@ -3,9 +3,10 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
-import { adminCreate, adminUpdate, adminDeleteRow } from "@/app/actions/admin-crud";
+import { adminCreate, adminUpdate, adminDeleteRow, adminReorder } from "@/app/actions/admin-crud";
 import { AdminShell } from "@/components/admin/admin-shell";
 import { FormModal } from "@/components/admin/form-modal";
+import { SortableList } from "@/components/admin/sortable-list";
 import { Plus, Pencil, Trash2, Upload, Loader2 } from "lucide-react";
 
 interface Photo {
@@ -78,22 +79,20 @@ export default function AdminGalleryPage() {
       }>
 
       {items.length > 0 ? (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-          {items.map((photo) => (
-            <div key={photo.id} className="group relative overflow-hidden rounded-xl border border-border">
-              <Image src={photo.image_url} alt={photo.caption ?? ""} width={300} height={200} sizes="(max-width: 640px) 50vw, 25vw" className="aspect-[4/3] w-full object-cover" />
-              <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100">
-                <div className="flex w-full items-center justify-between p-2">
-                  <p className="truncate text-xs text-white">{photo.caption || photo.category || "No caption"}</p>
-                  <div className="flex gap-1">
-                    <button onClick={() => setModal({ open: true, item: { ...photo } })} className="rounded bg-white/20 p-1 text-white hover:bg-white/40"><Pencil className="h-3 w-3" /></button>
-                    <button onClick={() => del(photo.id)} className="rounded bg-white/20 p-1 text-white hover:bg-red-500/80"><Trash2 className="h-3 w-3" /></button>
-                  </div>
-                </div>
-              </div>
+        <SortableList items={items} onReorder={(r) => start(async () => { await adminReorder("photo_gallery", r, "/admin/gallery"); })} renderItem={(photo, dragHandle) => (
+          <div className="flex items-center gap-3 rounded-xl border border-border bg-card p-2">
+            {dragHandle}
+            <Image src={photo.image_url} alt={photo.caption ?? ""} width={80} height={60} className="h-14 w-20 rounded object-cover" />
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-medium">{photo.caption || "No caption"}</p>
+              {photo.category && <p className="text-xs text-muted-foreground">{photo.category}</p>}
             </div>
-          ))}
-        </div>
+            <div className="flex gap-1">
+              <button onClick={() => setModal({ open: true, item: { ...photo } })} className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"><Pencil className="h-4 w-4" /></button>
+              <button onClick={() => del(photo.id)} className="rounded-md p-1.5 text-destructive hover:bg-destructive/10"><Trash2 className="h-4 w-4" /></button>
+            </div>
+          </div>
+        )} />
       ) : (
         <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border py-16 text-center">
           <p className="text-muted-foreground">No photos yet.</p>

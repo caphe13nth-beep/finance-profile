@@ -5,7 +5,8 @@ import { createClient } from "@/lib/supabase/client";
 import { adminCreate, adminUpdate, adminReorder } from "@/app/actions/admin-crud";
 import { AdminShell } from "@/components/admin/admin-shell";
 import { FormModal } from "@/components/admin/form-modal";
-import { Plus, Pencil, ArrowUp, ArrowDown } from "lucide-react";
+import { SortableList } from "@/components/admin/sortable-list";
+import { Plus, Pencil } from "lucide-react";
 
 interface Entry { id: string; year: number; title: string; organization: string | null; description: string | null; sort_order: number; }
 const EMPTY: Partial<Entry> = { year: new Date().getFullYear(), title: "", organization: "", description: "", sort_order: 0 };
@@ -33,26 +34,14 @@ export default function AdminTimelinePage() {
     });
   }
 
-  function move(index: number, dir: -1 | 1) {
-    const next = index + dir;
-    if (next < 0 || next >= items.length) return;
-    const newItems = [...items];
-    [newItems[index], newItems[next]] = [newItems[next], newItems[index]];
-    const reordered = newItems.map((item, i) => ({ id: item.id, sort_order: i }));
-    setItems(newItems.map((item, i) => ({ ...item, sort_order: i })));
-    start(async () => { await adminReorder("career_timeline", reordered, "/admin/timeline"); });
-  }
-
   return (
     <AdminShell title="Career Timeline" description={`${items.length} entries`}
-      actions={<button onClick={() => setModal({ open: true, item: { ...EMPTY, sort_order: items.length } })} className="inline-flex items-center gap-1.5 rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white hover:bg-green-dark"><Plus className="h-4 w-4" /> New</button>}>
-      <div className="space-y-2">
-        {items.map((e, i) => (
-          <div key={e.id} className="flex items-center gap-3 rounded-xl border border-border bg-card p-4">
-            <div className="flex flex-col gap-0.5">
-              <button onClick={() => move(i, -1)} disabled={i === 0} className="text-muted-foreground hover:text-foreground disabled:opacity-20"><ArrowUp className="h-3 w-3" /></button>
-              <button onClick={() => move(i, 1)} disabled={i === items.length - 1} className="text-muted-foreground hover:text-foreground disabled:opacity-20"><ArrowDown className="h-3 w-3" /></button>
-            </div>
+      actions={<button onClick={() => setModal({ open: true, item: { ...EMPTY, sort_order: items.length } })} className="inline-flex items-center gap-1.5 rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white hover:bg-accent/80"><Plus className="h-4 w-4" /> New</button>}>
+
+      {items.length > 0 ? (
+        <SortableList items={items} onReorder={(r) => start(async () => { await adminReorder("career_timeline", r, "/admin/timeline"); })} renderItem={(e, dragHandle) => (
+          <div className="flex items-center gap-3 rounded-xl border border-border bg-card p-4">
+            {dragHandle}
             <span className="rounded-full bg-accent/10 px-2.5 py-0.5 font-mono text-xs font-semibold text-accent">{e.year}</span>
             <div className="min-w-0 flex-1">
               <p className="font-medium">{e.title}</p>
@@ -60,9 +49,11 @@ export default function AdminTimelinePage() {
             </div>
             <button onClick={() => setModal({ open: true, item: { ...e } })} className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"><Pencil className="h-4 w-4" /></button>
           </div>
-        ))}
-        {items.length === 0 && <p className="py-8 text-center text-muted-foreground">No timeline entries.</p>}
-      </div>
+        )} />
+      ) : (
+        <p className="py-8 text-center text-muted-foreground">No timeline entries.</p>
+      )}
+
       <FormModal title={modal.item?.id ? "Edit Entry" : "New Entry"} open={modal.open} onClose={close}>
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
@@ -73,7 +64,7 @@ export default function AdminTimelinePage() {
           <div><label className={labelCls}>Description</label><textarea value={modal.item?.description ?? ""} onChange={(e) => setField("description", e.target.value)} rows={3} className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" /></div>
           <div className="flex justify-end gap-2 pt-2">
             <button onClick={close} className="rounded-lg border border-border px-4 py-2 text-sm hover:bg-muted">Cancel</button>
-            <button onClick={save} disabled={pending} className="rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white hover:bg-green-dark disabled:opacity-50">{pending ? "Saving..." : "Save"}</button>
+            <button onClick={save} disabled={pending} className="rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white hover:bg-accent/80 disabled:opacity-50">{pending ? "Saving..." : "Save"}</button>
           </div>
         </div>
       </FormModal>

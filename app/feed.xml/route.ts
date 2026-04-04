@@ -18,7 +18,8 @@ export async function GET() {
   const { data: posts } = await supabase
     .from("blog_posts")
     .select("title, slug, excerpt, published_at, category")
-    .eq("is_published", true)
+    .eq("status", "published")
+    .lte("published_at", new Date().toISOString())
     .order("published_at", { ascending: false })
     .limit(50);
 

@@ -5,7 +5,7 @@ import { signOutAction } from "@/app/actions/auth";
 import {
   TrendingUp, LogOut, FileText, Briefcase, MessageSquare,
   Users, Mail, Eye, Clock, Settings, FolderOpen,
-  Image as ImageIcon, Heart, Layout, ToggleLeft,
+  Image as ImageIcon, Heart, Layout, ToggleLeft, HardDrive,
 } from "lucide-react";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
@@ -23,6 +23,7 @@ const ADMIN_LINKS = [
   { label: "Contacts", href: "/admin/contacts", icon: MessageSquare, description: "View contact form messages" },
   { label: "Subscribers", href: "/admin/subscribers", icon: Mail, description: "Newsletter subscriber list" },
   { label: "Testimonials", href: "/admin/testimonials", icon: Users, description: "Manage client testimonials" },
+  { label: "Media Library", href: "/admin/media-library", icon: HardDrive, description: "Browse all storage files" },
 ];
 
 interface ActivityItem {
@@ -63,7 +64,7 @@ export default async function AdminDashboardPage() {
     { count: caseCount },
   ] = await Promise.all([
     admin.from("blog_posts").select("*", { count: "exact", head: true }),
-    admin.from("blog_posts").select("*", { count: "exact", head: true }).eq("is_published", true),
+    admin.from("blog_posts").select("*", { count: "exact", head: true }).eq("status", "published"),
     admin.from("newsletter_subscribers").select("*", { count: "exact", head: true }).eq("is_active", true),
     admin.from("contact_submissions").select("*", { count: "exact", head: true }).eq("is_read", false),
     admin.from("personal_projects").select("*", { count: "exact", head: true }),
@@ -93,7 +94,7 @@ export default async function AdminDashboardPage() {
   const { data: topPosts } = await admin
     .from("blog_posts")
     .select("title, reading_time_min")
-    .eq("is_published", true)
+    .eq("status", "published")
     .order("reading_time_min", { ascending: false })
     .limit(5);
 

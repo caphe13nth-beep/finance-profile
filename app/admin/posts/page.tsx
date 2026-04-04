@@ -9,7 +9,6 @@ import {
   adminCreate,
   adminUpdate,
   adminDeleteRow,
-  adminToggleField,
 } from "@/app/actions/admin-crud";
 import { AdminShell } from "@/components/admin/admin-shell";
 import { FormModal } from "@/components/admin/form-modal";
@@ -21,11 +20,16 @@ import {
   EyeOff,
   Image as ImageIcon,
   Search,
+  Clock,
+  Archive,
+  FileEdit,
 } from "lucide-react";
 import { MdxEditor } from "@/components/admin/mdx-editor";
 import { ImageUpload } from "@/components/admin/image-upload";
 
 // ── Types ──────────────────────────────────────────
+type PostStatus = "draft" | "scheduled" | "published" | "archived";
+
 interface Post {
   id: string;
   title: string;
@@ -38,7 +42,8 @@ interface Post {
   seo_title: string | null;
   seo_description: string | null;
   published_at: string | null;
-  is_published: boolean;
+  scheduled_at: string | null;
+  status: PostStatus;
   reading_time_min: number | null;
   created_at: string;
 }
@@ -58,7 +63,8 @@ const postSchema = z.object({
   reading_time_min: z.string().optional(),
   seo_title: z.string().optional(),
   seo_description: z.string().optional(),
-  is_published: z.boolean(),
+  status: z.enum(["draft", "scheduled", "published", "archived"]),
+  scheduled_at: z.string().optional(),
 });
 
 type PostFormValues = z.infer<typeof postSchema>;
@@ -70,6 +76,14 @@ const labelCls = "text-xs font-medium text-muted-foreground";
 const textareaCls =
   "mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring";
 const errorCls = "mt-1 text-xs text-destructive";
+
+// ── Status display ─────────────────────────────────
+const STATUS_CONFIG: Record<PostStatus, { label: string; icon: typeof Eye; cls: string }> = {
+  draft: { label: "Draft", icon: FileEdit, cls: "bg-muted text-muted-foreground" },
+  scheduled: { label: "Scheduled", icon: Clock, cls: "bg-chart-2/10 text-chart-2" },
+  published: { label: "Published", icon: Eye, cls: "bg-accent/10 text-accent" },
+  archived: { label: "Archived", icon: Archive, cls: "bg-destructive/10 text-destructive" },
+};
 
 // ── Post form component ────────────────────────────
 function PostForm({
@@ -102,11 +116,13 @@ function PostForm({
       reading_time_min: defaultValues?.reading_time_min != null ? String(defaultValues.reading_time_min) : "",
       seo_title: defaultValues?.seo_title ?? "",
       seo_description: defaultValues?.seo_description ?? "",
-      is_published: defaultValues?.is_published ?? false,
+      status: defaultValues?.status ?? "draft",
+      scheduled_at: defaultValues?.scheduled_at ? defaultValues.scheduled_at.slice(0, 16) : "",
     },
   });
 
   const featuredImage = watch("featured_image") ?? "";
+  const currentStatus = watch("status");
 
   // Auto-generate slug from title for new posts
   const titleValue = watch("title");
@@ -122,52 +138,28 @@ function PostForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      {/* Title */}
       <div>
-        <label className={labelCls}>
-          Title <span className="text-destructive">*</span>
-        </label>
+        <label className={labelCls}>Title <span className="text-destructive">*</span></label>
         <input {...register("title")} className={inputCls} />
         {errors.title && <p className={errorCls}>{errors.title.message}</p>}
       </div>
 
-      {/* Slug */}
       <div>
-        <label className={labelCls}>
-          Slug <span className="text-destructive">*</span>
-        </label>
-        <input
-          {...register("slug")}
-          className={inputCls}
-          placeholder="my-article-slug"
-        />
+        <label className={labelCls}>Slug <span className="text-destructive">*</span></label>
+        <input {...register("slug")} className={inputCls} placeholder="my-article-slug" />
         {errors.slug && <p className={errorCls}>{errors.slug.message}</p>}
       </div>
 
-      {/* Category */}
-      <div>
-        <label className={labelCls}>Category</label>
-        <input {...register("category")} className={inputCls} />
-      </div>
+      <div><label className={labelCls}>Category</label><input {...register("category")} className={inputCls} /></div>
+      <div><label className={labelCls}>Excerpt</label><textarea {...register("excerpt")} rows={2} className={textareaCls} /></div>
 
-      {/* Excerpt */}
-      <div>
-        <label className={labelCls}>Excerpt</label>
-        <textarea {...register("excerpt")} rows={2} className={textareaCls} />
-      </div>
-
-      {/* Body — MDX Editor */}
       <div>
         <label className={labelCls}>Body (MDX)</label>
         <div className="mt-1">
-          <MdxEditor
-            value={watch("body") ?? ""}
-            onChange={(val) => setValue("body", val)}
-          />
+          <MdxEditor value={watch("body") ?? ""} onChange={(val) => setValue("body", val)} />
         </div>
       </div>
 
-      {/* Featured Image — upload or URL */}
       <ImageUpload
         value={featuredImage}
         onChange={(url) => setValue("featured_image", url)}
@@ -176,55 +168,41 @@ function PostForm({
         label="Featured Image"
       />
 
-      {/* Tags + Reading Time */}
       <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className={labelCls}>Tags (comma separated)</label>
-          <input {...register("tags")} className={inputCls} />
-        </div>
-        <div>
-          <label className={labelCls}>Reading Time (min)</label>
-          <input
-            type="number"
-            {...register("reading_time_min")}
-            className={inputCls}
-            min={1}
-          />
-        </div>
+        <div><label className={labelCls}>Tags (comma separated)</label><input {...register("tags")} className={inputCls} /></div>
+        <div><label className={labelCls}>Reading Time (min)</label><input type="number" {...register("reading_time_min")} className={inputCls} min={1} /></div>
       </div>
 
-      {/* SEO */}
       <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className={labelCls}>SEO Title</label>
-          <input {...register("seo_title")} className={inputCls} />
-        </div>
-        <div>
-          <label className={labelCls}>SEO Description</label>
-          <input {...register("seo_description")} className={inputCls} />
-        </div>
+        <div><label className={labelCls}>SEO Title</label><input {...register("seo_title")} className={inputCls} /></div>
+        <div><label className={labelCls}>SEO Description</label><input {...register("seo_description")} className={inputCls} /></div>
       </div>
 
-      {/* Publish toggle */}
-      <label className="flex items-center gap-2 text-sm">
-        <input type="checkbox" {...register("is_published")} className="rounded" />
-        Publish immediately
-      </label>
+      {/* Status + Scheduled At */}
+      <fieldset className="space-y-3 rounded-lg border border-border p-4">
+        <legend className="px-2 text-xs font-semibold text-muted-foreground">Publishing</legend>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className={labelCls}>Status</label>
+            <select {...register("status")} className={inputCls}>
+              <option value="draft">Draft</option>
+              <option value="scheduled">Scheduled</option>
+              <option value="published">Published</option>
+              <option value="archived">Archived</option>
+            </select>
+          </div>
+          {currentStatus === "scheduled" && (
+            <div>
+              <label className={labelCls}>Scheduled For</label>
+              <input type="datetime-local" {...register("scheduled_at")} className={inputCls} />
+            </div>
+          )}
+        </div>
+      </fieldset>
 
-      {/* Actions */}
       <div className="flex justify-end gap-2 pt-2">
-        <button
-          type="button"
-          onClick={onCancel}
-          className="rounded-lg border border-border px-4 py-2 text-sm hover:bg-muted"
-        >
-          Cancel
-        </button>
-        <button
-          type="submit"
-          disabled={isPending}
-          className="rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white hover:bg-green-dark disabled:opacity-50"
-        >
+        <button type="button" onClick={onCancel} className="rounded-lg border border-border px-4 py-2 text-sm hover:bg-muted">Cancel</button>
+        <button type="submit" disabled={isPending} className="rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white hover:bg-accent/80 disabled:opacity-50">
           {isPending ? "Saving..." : "Save"}
         </button>
       </div>
@@ -236,45 +214,25 @@ function PostForm({
 export default function AdminPostsPage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [search, setSearch] = useState("");
-  const [modal, setModal] = useState<{
-    open: boolean;
-    post: Partial<Post> | null;
-  }>({ open: false, post: null });
+  const [statusFilter, setStatusFilter] = useState<PostStatus | "all">("all");
+  const [modal, setModal] = useState<{ open: boolean; post: Partial<Post> | null }>({ open: false, post: null });
   const [pending, startTransition] = useTransition();
 
   const load = useCallback(async () => {
     const supabase = createClient();
-    const { data } = await supabase
-      .from("blog_posts")
-      .select("*")
-      .order("created_at", { ascending: false });
+    const { data } = await supabase.from("blog_posts").select("*").order("created_at", { ascending: false });
     setPosts(data ?? []);
   }, []);
 
-  useEffect(() => {
-    load();
-  }, [load]);
+  useEffect(() => { load(); }, [load]);
 
-  function openNew() {
-    setModal({ open: true, post: {} });
-  }
-
-  function openEdit(p: Post) {
-    setModal({ open: true, post: { ...p } });
-  }
-
-  function close() {
-    setModal({ open: false, post: null });
-  }
+  function openNew() { setModal({ open: true, post: {} }); }
+  function openEdit(p: Post) { setModal({ open: true, post: { ...p } }); }
+  function close() { setModal({ open: false, post: null }); }
 
   function handleFormSubmit(values: PostFormValues) {
     const p = modal.post;
-    const tags = values.tags
-      ? values.tags
-          .split(",")
-          .map((t) => t.trim())
-          .filter(Boolean)
-      : [];
+    const tags = values.tags ? values.tags.split(",").map((t) => t.trim()).filter(Boolean) : [];
 
     const data: Record<string, unknown> = {
       title: values.title,
@@ -286,21 +244,18 @@ export default function AdminPostsPage() {
       tags,
       seo_title: values.seo_title || null,
       seo_description: values.seo_description || null,
-      is_published: values.is_published,
-      reading_time_min:
-        values.reading_time_min ? parseInt(values.reading_time_min, 10) || null : null,
+      status: values.status,
+      reading_time_min: values.reading_time_min ? parseInt(values.reading_time_min, 10) || null : null,
+      scheduled_at: values.status === "scheduled" && values.scheduled_at ? new Date(values.scheduled_at).toISOString() : null,
       published_at:
-        values.is_published && !p?.published_at
+        values.status === "published" && !p?.published_at
           ? new Date().toISOString()
           : p?.published_at ?? null,
     };
 
     startTransition(async () => {
-      if (p?.id) {
-        await adminUpdate("blog_posts", p.id, data, "/admin/posts");
-      } else {
-        await adminCreate("blog_posts", data, "/admin/posts");
-      }
+      if (p?.id) await adminUpdate("blog_posts", p.id, data, "/admin/posts");
+      else await adminCreate("blog_posts", data, "/admin/posts");
       close();
       load();
     });
@@ -308,68 +263,60 @@ export default function AdminPostsPage() {
 
   function handleDelete(id: string) {
     if (!confirm("Delete this post? This action cannot be undone.")) return;
-    startTransition(async () => {
-      await adminDeleteRow("blog_posts", id, "/admin/posts");
-      load();
-    });
+    startTransition(async () => { await adminDeleteRow("blog_posts", id, "/admin/posts"); load(); });
   }
 
-  function handleTogglePublish(id: string, current: boolean) {
-    startTransition(async () => {
-      await adminToggleField(
-        "blog_posts",
-        id,
-        "is_published",
-        !current,
-        "/admin/posts"
-      );
-      if (!current) {
-        await adminUpdate(
-          "blog_posts",
-          id,
-          { published_at: new Date().toISOString() },
-          "/admin/posts"
-        );
-      }
-      load();
-    });
+  function handleQuickStatus(id: string, newStatus: PostStatus) {
+    const data: Record<string, unknown> = { status: newStatus };
+    if (newStatus === "published") data.published_at = new Date().toISOString();
+    startTransition(async () => { await adminUpdate("blog_posts", id, data, "/admin/posts"); load(); });
   }
 
   // Filter
-  const filtered = search.trim()
-    ? posts.filter(
-        (p) =>
-          p.title.toLowerCase().includes(search.toLowerCase()) ||
-          (p.category?.toLowerCase().includes(search.toLowerCase()) ?? false)
-      )
-    : posts;
+  const filtered = posts.filter((p) => {
+    if (statusFilter !== "all" && p.status !== statusFilter) return false;
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      return p.title.toLowerCase().includes(q) || (p.category?.toLowerCase().includes(q) ?? false);
+    }
+    return true;
+  });
 
-  const published = posts.filter((p) => p.is_published).length;
-  const drafts = posts.length - published;
+  const counts = {
+    all: posts.length,
+    draft: posts.filter((p) => p.status === "draft").length,
+    scheduled: posts.filter((p) => p.status === "scheduled").length,
+    published: posts.filter((p) => p.status === "published").length,
+    archived: posts.filter((p) => p.status === "archived").length,
+  };
 
   return (
     <AdminShell
       title="Blog Posts"
-      description={`${posts.length} total · ${published} published · ${drafts} drafts`}
+      description={`${posts.length} total · ${counts.published} published · ${counts.draft} drafts`}
       actions={
-        <button
-          onClick={openNew}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white hover:bg-green-dark"
-        >
+        <button onClick={openNew} className="inline-flex items-center gap-1.5 rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white hover:bg-accent/80">
           <Plus className="h-4 w-4" /> New Post
         </button>
       }
     >
-      {/* Search */}
-      <div className="mb-4 relative max-w-sm">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Filter posts..."
-          className="h-9 w-full rounded-lg border border-input bg-background pl-9 pr-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-        />
+      {/* Filters */}
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="relative max-w-sm flex-1">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Filter posts..." className="h-9 w-full rounded-lg border border-input bg-background pl-9 pr-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+        </div>
+        <div className="flex gap-1">
+          {(["all", "draft", "scheduled", "published", "archived"] as const).map((s) => (
+            <button
+              key={s}
+              onClick={() => setStatusFilter(s)}
+              className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${statusFilter === s ? "bg-accent text-white" : "bg-muted text-muted-foreground hover:text-foreground"}`}
+            >
+              {s === "all" ? "All" : s.charAt(0).toUpperCase() + s.slice(1)} ({counts[s]})
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Data table */}
@@ -377,9 +324,7 @@ export default function AdminPostsPage() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border bg-muted/50 text-left text-xs font-medium text-muted-foreground">
-              <th className="w-10 px-4 py-3">
-                <ImageIcon className="h-4 w-4 text-muted-foreground/50" />
-              </th>
+              <th className="w-10 px-4 py-3"><ImageIcon className="h-4 w-4 text-muted-foreground/50" /></th>
               <th className="px-4 py-3">Title</th>
               <th className="px-4 py-3">Category</th>
               <th className="px-4 py-3">Status</th>
@@ -388,116 +333,66 @@ export default function AdminPostsPage() {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((p) => (
-              <tr
-                key={p.id}
-                className="border-b border-border last:border-0 hover:bg-muted/30"
-              >
-                {/* Thumbnail */}
-                <td className="px-4 py-2">
-                  {p.featured_image ? (
-                    <img
-                      src={p.featured_image}
-                      alt=""
-                      className="h-8 w-12 rounded object-cover"
-                    />
-                  ) : (
-                    <div className="flex h-8 w-12 items-center justify-center rounded bg-muted">
-                      <ImageIcon className="h-3 w-3 text-muted-foreground/30" />
-                    </div>
-                  )}
-                </td>
-
-                {/* Title + slug */}
-                <td className="px-4 py-3">
-                  <p className="font-medium">{p.title}</p>
-                  <p className="text-xs text-muted-foreground">/{p.slug}</p>
-                </td>
-
-                {/* Category */}
-                <td className="px-4 py-3">
-                  {p.category ? (
-                    <span className="rounded-full bg-muted px-2 py-0.5 text-xs">
-                      {p.category}
-                    </span>
-                  ) : (
-                    <span className="text-muted-foreground">—</span>
-                  )}
-                </td>
-
-                {/* Status */}
-                <td className="px-4 py-3">
-                  <span
-                    className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${
-                      p.is_published
-                        ? "bg-accent/10 text-accent"
-                        : "bg-muted text-muted-foreground"
-                    }`}
-                  >
-                    {p.is_published ? (
-                      <Eye className="h-3 w-3" />
+            {filtered.map((p) => {
+              const sc = STATUS_CONFIG[p.status] ?? STATUS_CONFIG.draft;
+              const StatusIcon = sc.icon;
+              return (
+                <tr key={p.id} className="border-b border-border last:border-0 hover:bg-muted/30">
+                  <td className="px-4 py-2">
+                    {p.featured_image ? (
+                      <img src={p.featured_image} alt="" className="h-8 w-12 rounded object-cover" />
                     ) : (
-                      <EyeOff className="h-3 w-3" />
+                      <div className="flex h-8 w-12 items-center justify-center rounded bg-muted"><ImageIcon className="h-3 w-3 text-muted-foreground/30" /></div>
                     )}
-                    {p.is_published ? "Published" : "Draft"}
-                  </span>
-                </td>
-
-                {/* Date */}
-                <td className="px-4 py-3 text-xs text-muted-foreground">
-                  {new Date(p.created_at).toLocaleDateString()}
-                </td>
-
-                {/* Actions */}
-                <td className="px-4 py-3">
-                  <div className="flex justify-end gap-1">
-                    <button
-                      onClick={() => handleTogglePublish(p.id, p.is_published)}
-                      className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
-                      title={p.is_published ? "Unpublish" : "Publish"}
-                    >
-                      {p.is_published ? (
-                        <EyeOff className="h-4 w-4" />
-                      ) : (
-                        <Eye className="h-4 w-4" />
+                  </td>
+                  <td className="px-4 py-3">
+                    <p className="font-medium">{p.title}</p>
+                    <p className="text-xs text-muted-foreground">/{p.slug}</p>
+                  </td>
+                  <td className="px-4 py-3">
+                    {p.category ? <span className="rounded-full bg-muted px-2 py-0.5 text-xs">{p.category}</span> : <span className="text-muted-foreground">—</span>}
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${sc.cls}`}>
+                      <StatusIcon className="h-3 w-3" />
+                      {sc.label}
+                    </span>
+                    {p.status === "scheduled" && p.scheduled_at && (
+                      <p className="mt-0.5 text-xs text-muted-foreground">
+                        {new Date(p.scheduled_at).toLocaleDateString()}
+                      </p>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-xs text-muted-foreground">
+                    {new Date(p.created_at).toLocaleDateString()}
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex justify-end gap-1">
+                      {p.status === "draft" && (
+                        <button onClick={() => handleQuickStatus(p.id, "published")} className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground" title="Publish">
+                          <Eye className="h-4 w-4" />
+                        </button>
                       )}
-                    </button>
-                    <button
-                      onClick={() => openEdit(p)}
-                      className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(p.id)}
-                      className="rounded-md p-1.5 text-destructive hover:bg-destructive/10"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+                      {p.status === "published" && (
+                        <button onClick={() => handleQuickStatus(p.id, "draft")} className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground" title="Unpublish">
+                          <EyeOff className="h-4 w-4" />
+                        </button>
+                      )}
+                      <button onClick={() => openEdit(p)} className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"><Pencil className="h-4 w-4" /></button>
+                      <button onClick={() => handleDelete(p.id)} className="rounded-md p-1.5 text-destructive hover:bg-destructive/10"><Trash2 className="h-4 w-4" /></button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
             {filtered.length === 0 && (
-              <tr>
-                <td
-                  colSpan={6}
-                  className="px-4 py-8 text-center text-muted-foreground"
-                >
-                  {search ? "No posts match your filter." : "No posts yet."}
-                </td>
-              </tr>
+              <tr><td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">{search || statusFilter !== "all" ? "No posts match your filter." : "No posts yet."}</td></tr>
             )}
           </tbody>
         </table>
       </div>
 
-      {/* Create / Edit modal */}
-      <FormModal
-        title={modal.post?.id ? "Edit Post" : "New Post"}
-        open={modal.open}
-        onClose={close}
-      >
+      <FormModal title={modal.post?.id ? "Edit Post" : "New Post"} open={modal.open} onClose={close}>
         {modal.open && (
           <PostForm
             key={modal.post?.id ?? "new"}

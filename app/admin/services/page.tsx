@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useState, useTransition, type ReactNode } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { adminCreate, adminUpdate, adminDeleteRow, adminReorder } from "@/app/actions/admin-crud";
 import { AdminShell } from "@/components/admin/admin-shell";
 import { FormModal } from "@/components/admin/form-modal";
-import { Plus, Pencil, Trash2, GripVertical, ArrowUp, ArrowDown } from "lucide-react";
+import { SortableList } from "@/components/admin/sortable-list";
+import { Plus, Pencil, Trash2 } from "lucide-react";
 
 interface Service { id: string; title: string; description: string | null; features: string[] | null; price: number | null; cta_label: string | null; sort_order: number; }
 const EMPTY: Partial<Service> = { title: "", description: "", features: [], price: null, cta_label: "", sort_order: 0 };
@@ -23,18 +24,12 @@ export default function AdminServicesPage() {
   }
   useEffect(() => { load(); }, []);
 
-  function openNew() { setModal({ open: true, item: { ...EMPTY, sort_order: items.length } }); }
-  function openEdit(s: Service) { setModal({ open: true, item: { ...s } }); }
   function close() { setModal({ open: false, item: null }); }
   function setField(k: string, v: unknown) { setModal((m) => ({ ...m, item: { ...m.item!, [k]: v } })); }
 
   function save() {
-    const s = modal.item;
-    if (!s?.title) return;
-    const data: Record<string, unknown> = {
-      title: s.title, description: s.description || null, features: s.features?.filter(Boolean) ?? [],
-      price: s.price ?? null, cta_label: s.cta_label || null, sort_order: s.sort_order ?? 0,
-    };
+    const s = modal.item; if (!s?.title) return;
+    const data: Record<string, unknown> = { title: s.title, description: s.description || null, features: s.features?.filter(Boolean) ?? [], price: s.price ?? null, cta_label: s.cta_label || null, sort_order: s.sort_order ?? 0 };
     start(async () => {
       if (s.id) await adminUpdate("services", s.id, data, "/admin/services");
       else await adminCreate("services", data, "/admin/services");
@@ -44,44 +39,32 @@ export default function AdminServicesPage() {
 
   function del(id: string) { if (!confirm("Delete?")) return; start(async () => { await adminDeleteRow("services", id, "/admin/services"); load(); }); }
 
-  function move(index: number, dir: -1 | 1) {
-    const next = index + dir;
-    if (next < 0 || next >= items.length) return;
-    const newItems = [...items];
-    [newItems[index], newItems[next]] = [newItems[next], newItems[index]];
-    const reordered = newItems.map((item, i) => ({ id: item.id, sort_order: i }));
-    setItems(newItems.map((item, i) => ({ ...item, sort_order: i })));
+  function handleReorder(reordered: { id: string; sort_order: number }[]) {
     start(async () => { await adminReorder("services", reordered, "/admin/services"); });
   }
 
   return (
     <AdminShell title="Services" description={`${items.length} services`}
-      actions={<button onClick={openNew} className="inline-flex items-center gap-1.5 rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white hover:bg-green-dark"><Plus className="h-4 w-4" /> New</button>}>
-      <div className="overflow-auto rounded-xl border border-border">
-        <table className="w-full text-sm">
-          <thead><tr className="border-b border-border bg-muted/50 text-left text-xs font-medium text-muted-foreground">
-            <th className="w-10 px-2 py-3"><GripVertical className="h-4 w-4 mx-auto text-muted-foreground/50" /></th>
-            <th className="px-4 py-3">Title</th><th className="px-4 py-3">Price</th><th className="px-4 py-3 text-right">Actions</th>
-          </tr></thead>
-          <tbody>
-            {items.map((s, i) => (
-              <tr key={s.id} className="border-b border-border last:border-0">
-                <td className="px-2 py-3"><div className="flex flex-col items-center gap-0.5">
-                  <button onClick={() => move(i, -1)} disabled={i === 0} className="text-muted-foreground hover:text-foreground disabled:opacity-20"><ArrowUp className="h-3 w-3" /></button>
-                  <button onClick={() => move(i, 1)} disabled={i === items.length - 1} className="text-muted-foreground hover:text-foreground disabled:opacity-20"><ArrowDown className="h-3 w-3" /></button>
-                </div></td>
-                <td className="px-4 py-3 font-medium">{s.title}</td>
-                <td className="px-4 py-3 font-mono text-muted-foreground">{s.price != null ? `$${s.price.toLocaleString()}` : "—"}</td>
-                <td className="px-4 py-3"><div className="flex justify-end gap-1">
-                  <button onClick={() => openEdit(s)} className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"><Pencil className="h-4 w-4" /></button>
-                  <button onClick={() => del(s.id)} className="rounded-md p-1.5 text-destructive hover:bg-destructive/10"><Trash2 className="h-4 w-4" /></button>
-                </div></td>
-              </tr>
-            ))}
-            {items.length === 0 && <tr><td colSpan={4} className="px-4 py-8 text-center text-muted-foreground">No services.</td></tr>}
-          </tbody>
-        </table>
-      </div>
+      actions={<button onClick={() => setModal({ open: true, item: { ...EMPTY, sort_order: items.length } })} className="inline-flex items-center gap-1.5 rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white hover:bg-accent/80"><Plus className="h-4 w-4" /> New</button>}>
+
+      {items.length > 0 ? (
+        <SortableList items={items} onReorder={handleReorder} renderItem={(s, dragHandle) => (
+          <div className="flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3">
+            {dragHandle}
+            <div className="min-w-0 flex-1">
+              <p className="font-medium">{s.title}</p>
+              <p className="text-sm text-muted-foreground">{s.price != null ? `$${s.price.toLocaleString()}` : "No price set"}</p>
+            </div>
+            <div className="flex gap-1">
+              <button onClick={() => setModal({ open: true, item: { ...s } })} className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"><Pencil className="h-4 w-4" /></button>
+              <button onClick={() => del(s.id)} className="rounded-md p-1.5 text-destructive hover:bg-destructive/10"><Trash2 className="h-4 w-4" /></button>
+            </div>
+          </div>
+        )} />
+      ) : (
+        <p className="py-8 text-center text-muted-foreground">No services.</p>
+      )}
+
       <FormModal title={modal.item?.id ? "Edit Service" : "New Service"} open={modal.open} onClose={close}>
         <div className="space-y-4">
           <div><label className={labelCls}>Title *</label><input value={modal.item?.title ?? ""} onChange={(e) => setField("title", e.target.value)} className={inputCls} /></div>
@@ -93,7 +76,7 @@ export default function AdminServicesPage() {
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <button onClick={close} className="rounded-lg border border-border px-4 py-2 text-sm hover:bg-muted">Cancel</button>
-            <button onClick={save} disabled={pending} className="rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white hover:bg-green-dark disabled:opacity-50">{pending ? "Saving..." : "Save"}</button>
+            <button onClick={save} disabled={pending} className="rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white hover:bg-accent/80 disabled:opacity-50">{pending ? "Saving..." : "Save"}</button>
           </div>
         </div>
       </FormModal>

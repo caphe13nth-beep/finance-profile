@@ -10,7 +10,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     supabase
       .from("blog_posts")
       .select("slug, updated_at")
-      .eq("is_published", true)
+      .eq("status", "published")
       .order("published_at", { ascending: false }),
     supabase
       .from("market_insights")

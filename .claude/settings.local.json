@@ -20,7 +20,8 @@
       "Bash(npx shadcn@latest add switch --yes)",
       "Bash(grep \"checked\\\\|onCheckedChange\" node_modules/@base-ui/react/dist/switch/*.d.ts)",
       "Bash(node -e \"const l = require\\('lucide-react'\\); console.log\\('Layout:', !!l.Layout, 'ToggleLeft:', !!l.ToggleLeft\\)\")",
-      "Bash(npx shadcn@latest add card --yes)"
+      "Bash(npx shadcn@latest add card --yes)",
+      "Bash(npm install:*)"
     ]
   }
 }

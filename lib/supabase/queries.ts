@@ -13,7 +13,8 @@ export async function getPublishedPosts() {
   return supabase
     .from("blog_posts")
     .select("*")
-    .eq("is_published", true)
+    .eq("status", "published")
+    .lte("published_at", new Date().toISOString())
     .order("published_at", { ascending: false });
 }
 
@@ -23,7 +24,8 @@ export async function getPostBySlug(slug: string) {
     .from("blog_posts")
     .select("*")
     .eq("slug", slug)
-    .eq("is_published", true)
+    .eq("status", "published")
+    .lte("published_at", new Date().toISOString())
     .single();
 }
 

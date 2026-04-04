@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { adminCreate, adminUpdate, adminDeleteRow, adminReorder } from "@/app/actions/admin-crud";
+import { uploadFile } from "@/app/actions/storage";
 import { AdminShell } from "@/components/admin/admin-shell";
 import { FormModal } from "@/components/admin/form-modal";
 import { SortableList } from "@/components/admin/sortable-list";
@@ -45,18 +46,26 @@ export default function AdminGalleryPage() {
   function del(id: string) { if (!confirm("Delete?")) return; start(async () => { await adminDeleteRow("photo_gallery", id, "/admin/gallery"); load(); }); }
 
   async function handleMultiUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const files = e.target.files;
-    if (!files?.length) return;
+    const fileList = e.target.files;
+    if (!fileList?.length) return;
     setUploading(true);
-    const supabase = createClient();
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      const ext = file.name.split(".").pop();
+    for (let i = 0; i < fileList.length; i++) {
+      const file = fileList[i];
+      const ext = file.name.split(".").pop() ?? "jpg";
       const path = `gallery/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-      const { error } = await supabase.storage.from("blog-images").upload(path, file, { upsert: true });
-      if (!error) {
-        const { data: { publicUrl } } = supabase.storage.from("blog-images").getPublicUrl(path);
-        await adminCreate("photo_gallery", { image_url: publicUrl, caption: null, category: null, sort_order: items.length + i }, "/admin/gallery");
+
+      // Convert to base64 for server action
+      const buffer = await file.arrayBuffer();
+      const bytes = new Uint8Array(buffer);
+      let binary = "";
+      for (let j = 0; j < bytes.length; j++) {
+        binary += String.fromCharCode(bytes[j]);
+      }
+      const base64 = btoa(binary);
+
+      const { url } = await uploadFile("blog-images", path, base64, file.type);
+      if (url) {
+        await adminCreate("photo_gallery", { image_url: url, caption: null, category: null, sort_order: items.length + i }, "/admin/gallery");
       }
     }
     setUploading(false);

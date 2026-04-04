@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { uploadFile } from "@/app/actions/storage";
 import {
   Upload,
   Loader2,
@@ -13,23 +13,26 @@ import {
 type Bucket = "avatars" | "blog-images" | "documents" | "case-study-assets";
 
 interface ImageUploadProps {
-  /** Current image URL */
   value: string;
-  /** Callback with the public URL (or empty string on remove) */
   onChange: (url: string) => void;
-  /** Supabase Storage bucket to upload into */
   bucket?: Bucket;
-  /** Sub-folder within the bucket (e.g. "posts", "profiles") */
   folder?: string;
-  /** Label shown above the input */
   label?: string;
-  /** Accepted file types */
   accept?: string;
-  /** Max file size in MB */
   maxSizeMb?: number;
 }
 
 const MAX_DEFAULT_MB = 5;
+
+async function fileToBase64(file: File): Promise<string> {
+  const buffer = await file.arrayBuffer();
+  const bytes = new Uint8Array(buffer);
+  let binary = "";
+  for (let i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
+}
 
 export function ImageUpload({
   value,
@@ -50,13 +53,11 @@ export function ImageUpload({
     async (file: File) => {
       setError(null);
 
-      // Validate size
       if (file.size > maxSizeMb * 1024 * 1024) {
         setError(`File too large. Max ${maxSizeMb}MB.`);
         return;
       }
 
-      // Validate type
       if (accept !== "*" && !file.type.startsWith("image/")) {
         setError("Only image files are allowed.");
         return;
@@ -65,24 +66,18 @@ export function ImageUpload({
       setUploading(true);
 
       try {
-        const supabase = createClient();
         const ext = file.name.split(".").pop() ?? "jpg";
         const path = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+        const base64 = await fileToBase64(file);
 
-        const { error: uploadError } = await supabase.storage
-          .from(bucket)
-          .upload(path, file, { upsert: true });
+        const { url, error: uploadError } = await uploadFile(bucket, path, base64, file.type);
 
         if (uploadError) {
-          setError(uploadError.message);
+          setError(uploadError);
           return;
         }
 
-        const {
-          data: { publicUrl },
-        } = supabase.storage.from(bucket).getPublicUrl(path);
-
-        onChange(publicUrl);
+        if (url) onChange(url);
       } catch {
         setError("Upload failed. Please try again.");
       } finally {
@@ -127,7 +122,6 @@ export function ImageUpload({
         </label>
       )}
 
-      {/* URL input + upload button */}
       <div className="mt-1 flex gap-2">
         <input
           value={value}
@@ -160,7 +154,6 @@ export function ImageUpload({
         />
       </div>
 
-      {/* Drop zone (shown when no image) */}
       {!value && !uploading && (
         <div
           ref={dropRef}
@@ -185,7 +178,6 @@ export function ImageUpload({
         </div>
       )}
 
-      {/* Loading indicator */}
       {uploading && (
         <div className="mt-2 flex items-center gap-2 rounded-lg border border-border bg-muted/30 px-4 py-3">
           <Loader2 className="h-4 w-4 animate-spin text-accent" />
@@ -193,7 +185,6 @@ export function ImageUpload({
         </div>
       )}
 
-      {/* Preview */}
       {value && !uploading && (
         <div className="relative mt-2 overflow-hidden rounded-lg border border-border">
           <img
@@ -213,7 +204,6 @@ export function ImageUpload({
         </div>
       )}
 
-      {/* Error */}
       {error && (
         <div className="mt-2 flex items-center gap-1.5 text-xs text-destructive">
           <AlertCircle className="h-3.5 w-3.5 shrink-0" />

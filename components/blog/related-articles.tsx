@@ -8,11 +8,12 @@ interface RelatedPost {
   id: string;
   title: string;
   slug: string;
-  excerpt: string | null;
+  excerpt?: string | null;
   featured_image: string | null;
   category: string | null;
   published_at: string | null;
   reading_time_min: number | null;
+  [key: string]: unknown;
 }
 
 export function RelatedArticles({ posts }: { posts: RelatedPost[] }) {
@@ -40,7 +41,7 @@ export function RelatedArticles({ posts }: { posts: RelatedPost[] }) {
               href={`/blog/${post.slug}`}
               className="group flex flex-col overflow-hidden rounded-xl border border-border bg-card transition-all hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-lg"
             >
-              <div className="aspect-[16/9] overflow-hidden bg-muted">
+              <div className="relative aspect-[16/9] overflow-hidden bg-muted">
                 {post.featured_image ? (
                   <Image
                     src={post.featured_image}

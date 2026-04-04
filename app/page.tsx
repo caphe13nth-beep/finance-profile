@@ -27,11 +27,15 @@ const FeaturedCaseStudy = dynamic(() => import("@/components/home/featured-case-
 
 export const revalidate = 3600;
 
-async function safeQuery<T>(fn: () => Promise<{ data: T | null }>): Promise<T | null> {
+async function safeQuery<T>(fn: () => Promise<{ data: T | null; error?: { message: string } | null }>, label?: string): Promise<T | null> {
   try {
-    const { data } = await fn();
-    return data;
-  } catch {
+    const result = await fn();
+    if (result.error) {
+      console.warn(`[home] query ${label ?? fn.name} error:`, result.error.message);
+    }
+    return result.data;
+  } catch (e) {
+    console.warn(`[home] query ${label ?? fn.name} threw:`, e instanceof Error ? e.message : e);
     return null;
   }
 }
@@ -39,15 +43,26 @@ async function safeQuery<T>(fn: () => Promise<{ data: T | null }>): Promise<T | 
 export default async function Home() {
   const [posts, caseStudies, timeline, testimonials, profile, projects, photos, hobbies] =
     await Promise.all([
-      safeQuery(getPublishedPosts),
-      safeQuery(getCaseStudies),
-      safeQuery(getCareerTimeline),
-      safeQuery(getTestimonials),
-      safeQuery(getProfile),
-      safeQuery(getPersonalProjects),
-      safeQuery(getPhotoGallery),
-      safeQuery(getHobbiesInterests),
+      safeQuery(getPublishedPosts, "published_posts"),
+      safeQuery(getCaseStudies, "case_studies"),
+      safeQuery(getCareerTimeline, "career_timeline"),
+      safeQuery(getTestimonials, "testimonials"),
+      safeQuery(getProfile, "profile"),
+      safeQuery(getPersonalProjects, "personal_projects"),
+      safeQuery(getPhotoGallery, "photo_gallery"),
+      safeQuery(getHobbiesInterests, "hobbies_interests"),
     ]);
+
+  console.log("[home] data counts:", {
+    posts: (posts as unknown[] | null)?.length ?? "null",
+    caseStudies: (caseStudies as unknown[] | null)?.length ?? "null",
+    timeline: (timeline as unknown[] | null)?.length ?? "null",
+    testimonials: (testimonials as unknown[] | null)?.length ?? "null",
+    profile: profile ? "found" : "null",
+    projects: (projects as unknown[] | null)?.length ?? "null",
+    photos: (photos as unknown[] | null)?.length ?? "null",
+    hobbies: (hobbies as unknown[] | null)?.length ?? "null",
+  });
 
   const latestPosts = (posts ?? []).slice(0, 3);
   const featuredCase = (caseStudies ?? [])[0] ?? null;

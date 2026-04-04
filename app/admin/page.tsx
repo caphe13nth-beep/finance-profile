@@ -90,17 +90,17 @@ export default async function AdminDashboardPage() {
   });
   const subscriberChartData = Object.entries(subsByDay).map(([date, count]) => ({ date, count }));
 
-  // Top 5 posts by reading_time_min as proxy (view_count column not yet available)
+  // Top 5 posts by view count
   const { data: topPosts } = await admin
     .from("blog_posts")
-    .select("title, reading_time_min")
+    .select("title, view_count")
     .eq("status", "published")
-    .order("reading_time_min", { ascending: false })
+    .order("view_count", { ascending: false })
     .limit(5);
 
   const topPostsData = (topPosts ?? []).map((p) => ({
     title: p.title,
-    views: p.reading_time_min ?? 0,
+    views: p.view_count ?? 0,
   }));
 
   // Recent activity — contacts + subscribers, last 10
@@ -183,7 +183,7 @@ export default async function AdminDashboardPage() {
           <Card>
             <CardContent className="p-5">
               <h3 className="font-heading text-sm font-semibold text-foreground">Top Posts</h3>
-              <p className="text-xs text-muted-foreground">By reading time</p>
+              <p className="text-xs text-muted-foreground">By views</p>
               <div className="mt-4">
                 {topPostsData.length > 0 ? (
                   <TopPostsChart data={topPostsData} />

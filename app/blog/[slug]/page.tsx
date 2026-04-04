@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { ArrowLeft, Clock, Calendar } from "lucide-react";
-import { getPostBySlug, getPublishedPosts, getProfile } from "@/lib/supabase/queries";
+import { getPostBySlug, getRelatedPosts, getProfile } from "@/lib/supabase/queries";
 import { mdxComponents } from "@/components/blog/mdx-components";
 import { ReadingProgress } from "@/components/blog/reading-progress";
 import { TableOfContents } from "@/components/blog/table-of-contents";
@@ -12,6 +12,8 @@ import { AuthorCard } from "@/components/blog/author-card";
 import { RelatedArticles } from "@/components/blog/related-articles";
 import { articleMetadata } from "@/lib/metadata";
 import { JsonLd, articleSchema } from "@/lib/json-ld";
+import { BlogReactions } from "@/components/blog/blog-reactions";
+import { ViewTracker } from "@/components/blog/view-tracker";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -41,16 +43,12 @@ export default async function BlogPostPage({ params }: Props) {
 
   if (!post) notFound();
 
-  // Related posts: same category, exclude current, limit 3
-  const { data: allPosts } = await getPublishedPosts();
-  const related = (allPosts ?? [])
-    .filter(
-      (p) =>
-        p.id !== post.id &&
-        p.category &&
-        p.category === post.category
-    )
-    .slice(0, 3);
+  // Related posts: same category + overlapping tags, scored and ranked
+  const { data: related } = await getRelatedPosts(
+    post.id,
+    post.category,
+    post.tags
+  );
 
   const date = post.published_at
     ? new Date(post.published_at).toLocaleDateString("en-US", {
@@ -74,6 +72,7 @@ export default async function BlogPostPage({ params }: Props) {
           authorImage: profile?.photo_url ?? null,
         })}
       />
+      <ViewTracker postId={post.id} />
       <ReadingProgress />
 
       <article className="py-12 sm:py-16">
@@ -164,6 +163,12 @@ export default async function BlogPostPage({ params }: Props) {
                 </div>
               )}
 
+              {/* Reactions */}
+              <div className="mt-8 border-t border-border pt-6">
+                <p className="mb-3 text-sm font-medium text-muted-foreground">Was this helpful?</p>
+                <BlogReactions postId={post.id} />
+              </div>
+
               {/* Author card */}
               {profile && (
                 <div className="mt-10">
@@ -177,7 +182,7 @@ export default async function BlogPostPage({ params }: Props) {
               )}
 
               {/* Related articles */}
-              <RelatedArticles posts={related} />
+              <RelatedArticles posts={related ?? []} />
             </div>
 
             {/* Sidebar — TOC */}

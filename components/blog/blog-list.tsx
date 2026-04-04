@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Search, Clock, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, Clock, ChevronLeft, ChevronRight, Eye } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface BlogPost {
@@ -16,6 +16,7 @@ interface BlogPost {
   tags: string[] | null;
   published_at: string | null;
   reading_time_min: number | null;
+  view_count?: number;
 }
 
 const POSTS_PER_PAGE = 9;
@@ -67,6 +68,12 @@ function ArticleCard({ post }: { post: BlogPost }) {
             <span className="flex items-center gap-1">
               <Clock className="h-3 w-3" />
               {post.reading_time_min} min
+            </span>
+          )}
+          {(post.view_count ?? 0) > 0 && (
+            <span className="flex items-center gap-1">
+              <Eye className="h-3 w-3" />
+              {post.view_count?.toLocaleString()}
             </span>
           )}
         </div>

@@ -7,7 +7,7 @@ const DEFAULTS: SiteSettings = {
     hero: true, stats_bar: true, latest_insights: true, featured_case_study: true,
     career_timeline: true, testimonials: true, newsletter_cta: true, services_preview: true,
     media_appearances: true, personal_intro: true, photo_gallery: true, hobbies: true,
-    personal_projects: true, what_i_do: true, now_section: true,
+    personal_projects: true, what_i_do: true, now_section: true, comments: true,
     finance_ticker: false, calculators: false, market_insights: false,
   },
   page_visibility: {
@@ -18,6 +18,7 @@ const DEFAULTS: SiteSettings = {
     site_name: "Your Name", tagline: "Finance Professional & Advisor",
     logo_url: null, favicon_url: null, og_image_url: null, site_mode: "hybrid",
     footer_text: "© 2026 Your Name. All rights reserved.",
+    giscus_repo: "", giscus_repo_id: "", giscus_category: "", giscus_category_id: "",
   },
   seo_defaults: {
     title_template: "%s | Your Name", default_description: "Personal profile and finance insights",

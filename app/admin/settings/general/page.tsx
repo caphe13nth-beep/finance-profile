@@ -18,11 +18,16 @@ interface Identity {
   og_image_url: string | null;
   site_mode: string;
   footer_text: string;
+  giscus_repo: string;
+  giscus_repo_id: string;
+  giscus_category: string;
+  giscus_category_id: string;
 }
 
 const EMPTY: Identity = {
   site_name: "", tagline: "", logo_url: null, favicon_url: null,
   og_image_url: null, site_mode: "hybrid", footer_text: "",
+  giscus_repo: "", giscus_repo_id: "", giscus_category: "", giscus_category_id: "",
 };
 
 export default function AdminGeneralPage() {
@@ -56,7 +61,7 @@ export default function AdminGeneralPage() {
   return (
     <AdminShell
       title="Site Identity"
-      description="Name, branding, and site mode"
+      description="Name, branding, site mode, and integrations"
       actions={
         saved ? <span className="flex items-center gap-1 text-sm text-accent"><CheckCircle2 className="h-4 w-4" /> Saved</span> : null
       }
@@ -111,13 +116,45 @@ export default function AdminGeneralPage() {
           label="Default OG Image (1200×630)"
           maxSizeMb={2}
         />
+      </div>
 
-        {/* Save */}
-        <div className="flex items-center gap-3 pt-2">
-          <button onClick={save} disabled={pending} className="rounded-lg bg-accent px-6 py-2 text-sm font-semibold text-white hover:bg-green-dark disabled:opacity-50">
-            {pending ? "Saving..." : "Save"}
-          </button>
+      {/* Giscus Comments */}
+      <div className="mt-6 max-w-2xl space-y-5 rounded-2xl border border-border bg-card p-6">
+        <div>
+          <h3 className="font-heading text-base font-semibold">Giscus Comments</h3>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Set up at{" "}
+            <a href="https://giscus.app" target="_blank" rel="noopener noreferrer" className="text-accent underline">giscus.app</a>
+            {" "}then paste the values below. Leave empty to disable comments.
+          </p>
         </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className={labelCls}>Repository</label>
+            <input value={data.giscus_repo} onChange={(e) => set("giscus_repo", e.target.value)} className={inputCls} placeholder="owner/repo" />
+          </div>
+          <div>
+            <label className={labelCls}>Repository ID</label>
+            <input value={data.giscus_repo_id} onChange={(e) => set("giscus_repo_id", e.target.value)} className={inputCls} placeholder="R_..." />
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className={labelCls}>Category</label>
+            <input value={data.giscus_category} onChange={(e) => set("giscus_category", e.target.value)} className={inputCls} placeholder="Announcements" />
+          </div>
+          <div>
+            <label className={labelCls}>Category ID</label>
+            <input value={data.giscus_category_id} onChange={(e) => set("giscus_category_id", e.target.value)} className={inputCls} placeholder="DIC_..." />
+          </div>
+        </div>
+      </div>
+
+      {/* Save */}
+      <div className="mt-6 flex items-center gap-3">
+        <button onClick={save} disabled={pending} className="rounded-lg bg-accent px-6 py-2 text-sm font-semibold text-white hover:bg-accent/80 disabled:opacity-50">
+          {pending ? "Saving..." : "Save"}
+        </button>
       </div>
     </AdminShell>
   );

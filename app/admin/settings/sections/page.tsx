@@ -23,6 +23,7 @@ const SECTION_META: Record<string, { label: string; description: string }> = {
   personal_projects: { label: "Personal Projects", description: "Side projects and creative work" },
   what_i_do: { label: "What I Do", description: "Current activities and focus areas" },
   now_section: { label: "Now Section", description: "What I'm doing right now" },
+  comments: { label: "Comments", description: "Giscus comments on blog posts" },
   finance_ticker: { label: "Finance Ticker", description: "Scrolling stock/crypto prices bar" },
   calculators: { label: "Calculators", description: "Interactive financial calculators" },
   market_insights: { label: "Market Insights", description: "Market analysis and research" },

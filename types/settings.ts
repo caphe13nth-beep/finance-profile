@@ -15,6 +15,7 @@ export interface SectionVisibility {
   personal_projects: boolean;
   what_i_do: boolean;
   now_section: boolean;
+  comments: boolean;
   finance_ticker: boolean;
   calculators: boolean;
   market_insights: boolean;
@@ -41,6 +42,10 @@ export interface SiteIdentity {
   og_image_url: string | null;
   site_mode: "personal" | "finance" | "hybrid";
   footer_text: string;
+  giscus_repo: string;
+  giscus_repo_id: string;
+  giscus_category: string;
+  giscus_category_id: string;
 }
 
 // ── SEO Defaults ───────────────────────────────────

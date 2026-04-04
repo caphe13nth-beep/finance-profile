@@ -14,6 +14,7 @@ import { articleMetadata } from "@/lib/metadata";
 import { JsonLd, articleSchema } from "@/lib/json-ld";
 import { BlogReactions } from "@/components/blog/blog-reactions";
 import { ViewTracker } from "@/components/blog/view-tracker";
+import { GiscusComments } from "@/components/blog/giscus-comments";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -183,6 +184,9 @@ export default async function BlogPostPage({ params }: Props) {
 
               {/* Related articles */}
               <RelatedArticles posts={related ?? []} />
+
+              {/* Giscus comments */}
+              <GiscusComments />
             </div>
 
             {/* Sidebar — TOC */}

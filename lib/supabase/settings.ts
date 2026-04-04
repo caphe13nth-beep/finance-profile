@@ -1,4 +1,5 @@
 import { createClient } from "./server";
+import { createAdminClient } from "./admin";
 import type { SiteSettings } from "@/types/settings";
 
 const DEFAULTS: SiteSettings = {
@@ -73,16 +74,31 @@ const DEFAULTS: SiteSettings = {
  * a typed SiteSettings object, merged with defaults.
  * Safe to call from server components and server actions.
  */
-export async function fetchAllSettings(): Promise<SiteSettings> {
+async function fetchSettingsRows(): Promise<{ key: string; value: unknown }[] | null> {
   try {
     const supabase = await createClient();
-    const { data } = await supabase
-      .from("site_settings")
-      .select("key, value");
+    const { data } = await supabase.from("site_settings").select("key, value");
+    return data;
+  } catch {
+    // cookies() unavailable during build — fall back to admin client
+    try {
+      const supabase = createAdminClient();
+      const { data } = await supabase.from("site_settings").select("key, value");
+      return data;
+    } catch {
+      return null;
+    }
+  }
+}
+
+export async function fetchAllSettings(): Promise<SiteSettings> {
+  try {
+    const data = await fetchSettingsRows();
 
     if (!data) return DEFAULTS;
 
-    const map = Object.fromEntries(data.map((r) => [r.key, r.value]));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const map: Record<string, any> = Object.fromEntries(data.map((r) => [r.key, r.value]));
 
     return {
       section_visibility: { ...DEFAULTS.section_visibility, ...(map.section_visibility ?? {}) },
@@ -96,9 +112,9 @@ export async function fetchAllSettings(): Promise<SiteSettings> {
       theme: {
         ...DEFAULTS.theme,
         ...(map.theme ?? {}),
-        colors: { ...DEFAULTS.theme.colors, ...((map.theme as Record<string, unknown>)?.colors ?? {}) },
-        dark_colors: { ...DEFAULTS.theme.dark_colors, ...((map.theme as Record<string, unknown>)?.dark_colors ?? {}) },
-        fonts: { ...DEFAULTS.theme.fonts, ...((map.theme as Record<string, unknown>)?.fonts ?? {}) },
+        colors: { ...DEFAULTS.theme.colors, ...(map.theme?.colors ?? {}) },
+        dark_colors: { ...DEFAULTS.theme.dark_colors, ...(map.theme?.dark_colors ?? {}) },
+        fonts: { ...DEFAULTS.theme.fonts, ...(map.theme?.fonts ?? {}) },
       },
     };
   } catch {

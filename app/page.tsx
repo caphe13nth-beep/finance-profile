@@ -27,26 +27,27 @@ const FeaturedCaseStudy = dynamic(() => import("@/components/home/featured-case-
 
 export const revalidate = 3600;
 
+async function safeQuery<T>(fn: () => Promise<{ data: T | null }>): Promise<T | null> {
+  try {
+    const { data } = await fn();
+    return data;
+  } catch {
+    return null;
+  }
+}
+
 export default async function Home() {
-  const [
-    { data: posts },
-    { data: caseStudies },
-    { data: timeline },
-    { data: testimonials },
-    { data: profile },
-    { data: projects },
-    { data: photos },
-    { data: hobbies },
-  ] = await Promise.all([
-    getPublishedPosts(),
-    getCaseStudies(),
-    getCareerTimeline(),
-    getTestimonials(),
-    getProfile(),
-    getPersonalProjects(),
-    getPhotoGallery(),
-    getHobbiesInterests(),
-  ]);
+  const [posts, caseStudies, timeline, testimonials, profile, projects, photos, hobbies] =
+    await Promise.all([
+      safeQuery(getPublishedPosts),
+      safeQuery(getCaseStudies),
+      safeQuery(getCareerTimeline),
+      safeQuery(getTestimonials),
+      safeQuery(getProfile),
+      safeQuery(getPersonalProjects),
+      safeQuery(getPhotoGallery),
+      safeQuery(getHobbiesInterests),
+    ]);
 
   const latestPosts = (posts ?? []).slice(0, 3);
   const featuredCase = (caseStudies ?? [])[0] ?? null;

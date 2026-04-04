@@ -123,7 +123,15 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const settings = await fetchAllSettings();
+  let settings: Awaited<ReturnType<typeof fetchAllSettings>>;
+  try {
+    settings = await fetchAllSettings();
+  } catch {
+    // Fallback: import defaults directly to prevent layout crash
+    const { SETTINGS_DEFAULTS } = await import("@/lib/supabase/settings");
+    settings = SETTINGS_DEFAULTS;
+  }
+
   const themeStyle = buildThemeStyle(settings);
   const defaultTheme = settings.theme.default_dark ? "dark" : "light";
 

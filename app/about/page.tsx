@@ -24,11 +24,15 @@ export default async function AboutPage() {
   const settings = await fetchAllSettings();
   if (!settings.page_visibility.about) notFound();
 
-  const [{ data: profile }, { data: timeline }, { data: photos }, { data: hobbies }] = await Promise.all([
-    getProfile(),
-    getCareerTimeline(),
-    getPhotoGallery(),
-    getHobbiesInterests(),
+  const safe = async <T,>(fn: () => Promise<{ data: T | null }>): Promise<T | null> => {
+    try { return (await fn()).data; } catch { return null; }
+  };
+
+  const [profile, timeline, photos, hobbies] = await Promise.all([
+    safe(getProfile),
+    safe(getCareerTimeline),
+    safe(getPhotoGallery),
+    safe(getHobbiesInterests),
   ]);
 
   const name = profile?.name ?? "Finance Professional";

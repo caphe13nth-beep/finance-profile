@@ -3,7 +3,8 @@ import { createClient } from "./server";
 // ── Profiles ──────────────────────────────────────────────
 export async function getProfile() {
   const supabase = await createClient();
-  return supabase.from("profiles").select("*").limit(1).single();
+  const { data } = await supabase.from("profiles").select("*").limit(1).maybeSingle();
+  return { data };
 }
 
 // ── Blog Posts ────────────────────────────────────────────

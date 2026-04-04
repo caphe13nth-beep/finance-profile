@@ -75,20 +75,38 @@ const DEFAULTS: SiteSettings = {
  * Safe to call from server components and server actions.
  */
 async function fetchSettingsRows(): Promise<{ key: string; value: unknown }[] | null> {
+  // Try server client (has cookie context)
   try {
+    console.log("[settings] trying server client...");
     const supabase = await createClient();
-    const { data } = await supabase.from("site_settings").select("key, value");
-    return data;
-  } catch {
-    // cookies() unavailable during build — fall back to admin client
-    try {
-      const supabase = createAdminClient();
-      const { data } = await supabase.from("site_settings").select("key, value");
+    const { data, error } = await supabase.from("site_settings").select("key, value");
+    if (error) {
+      console.warn("[settings] server client query error:", error.message);
+    } else {
+      console.log("[settings] server client OK, rows:", data?.length ?? 0);
       return data;
-    } catch {
-      return null;
     }
+  } catch (e) {
+    console.warn("[settings] server client failed:", e instanceof Error ? e.message : e);
   }
+
+  // Fallback: admin client (no cookies needed)
+  try {
+    console.log("[settings] trying admin client...");
+    const supabase = createAdminClient();
+    const { data, error } = await supabase.from("site_settings").select("key, value");
+    if (error) {
+      console.warn("[settings] admin client query error:", error.message);
+    } else {
+      console.log("[settings] admin client OK, rows:", data?.length ?? 0);
+      return data;
+    }
+  } catch (e) {
+    console.warn("[settings] admin client failed:", e instanceof Error ? e.message : e);
+  }
+
+  console.warn("[settings] all clients failed, using DEFAULTS");
+  return null;
 }
 
 export async function fetchAllSettings(): Promise<SiteSettings> {

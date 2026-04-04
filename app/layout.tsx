@@ -121,12 +121,14 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Settings fetch — triple-guarded: fetchAllSettings has its own try/catch,
-  // plus we catch here, plus we have SETTINGS_DEFAULTS as final fallback
+  // Settings fetch with debug logging
   let settings: SiteSettings;
   try {
+    console.log("[layout] fetching settings...");
     settings = await fetchAllSettings();
-  } catch {
+    console.log("[layout] settings OK, site_name:", settings.site_identity.site_name);
+  } catch (e) {
+    console.error("[layout] settings fetch FAILED:", e instanceof Error ? e.message : e);
     settings = SETTINGS_DEFAULTS;
   }
 

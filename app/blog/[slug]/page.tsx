@@ -7,7 +7,7 @@ import { ArrowLeft, Clock, Calendar } from "lucide-react";
 import { getPostBySlug, getRelatedPosts, getProfile } from "@/lib/supabase/queries";
 import { mdxComponents } from "@/components/blog/mdx-components";
 import { ReadingProgress } from "@/components/blog/reading-progress";
-import { TableOfContents } from "@/components/blog/table-of-contents";
+import { TableOfContents, MobileToc } from "@/components/blog/table-of-contents";
 import { AuthorCard } from "@/components/blog/author-card";
 import { RelatedArticles } from "@/components/blog/related-articles";
 import { articleMetadata } from "@/lib/metadata";
@@ -75,6 +75,8 @@ export default async function BlogPostPage({ params }: Props) {
       />
       <ViewTracker postId={post.id} />
       <ReadingProgress />
+
+      <MobileToc />
 
       <article className="py-12 sm:py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

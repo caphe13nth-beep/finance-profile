@@ -4,7 +4,13 @@ const SITE_NAME = "FinanceProfile";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://financeprofile.com";
 const DEFAULT_DESCRIPTION =
   "Professional financial advisory, market insights, and portfolio management services.";
-const DEFAULT_OG_IMAGE = `${SITE_URL}/og-default.png`;
+
+function ogImageUrl(title: string, subtitle?: string, type?: string): string {
+  const params = new URLSearchParams({ title });
+  if (subtitle) params.set("subtitle", subtitle);
+  if (type) params.set("type", type);
+  return `${SITE_URL}/api/og?${params.toString()}`;
+}
 
 export function siteMetadata({
   title,
@@ -22,7 +28,7 @@ export function siteMetadata({
   const fullTitle = `${title} | ${SITE_NAME}`;
   const desc = description ?? DEFAULT_DESCRIPTION;
   const url = `${SITE_URL}${path}`;
-  const image = ogImage ?? DEFAULT_OG_IMAGE;
+  const image = ogImage ?? ogImageUrl(title, desc, "page");
 
   return {
     title: fullTitle,
@@ -63,7 +69,8 @@ export function articleMetadata({
 }): Metadata {
   const fullTitle = `${title} | ${SITE_NAME}`;
   const url = `${SITE_URL}/blog/${slug}`;
-  const ogImage = image ?? DEFAULT_OG_IMAGE;
+  // Use post's featured image if available, otherwise generate dynamic OG
+  const ogImage = image || ogImageUrl(title, description, "blog");
 
   return {
     title: fullTitle,

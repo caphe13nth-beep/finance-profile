@@ -6,6 +6,9 @@ import { SettingsProvider } from "@/lib/settings-provider";
 import { ToastProvider } from "@/components/toast";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
+import { CommandPalette } from "@/components/command-palette";
+import { PageTransition } from "@/components/page-transition";
+import { BackToTop } from "@/components/back-to-top";
 import { fetchAllSettings, SETTINGS_DEFAULTS } from "@/lib/supabase/settings";
 import { cn } from "@/lib/utils";
 import type { SiteSettings } from "@/types/settings";
@@ -177,8 +180,12 @@ export default async function RootLayout({
         >
           <SettingsProvider settings={settings}>
             <ToastProvider>
+              <CommandPalette />
+              <BackToTop />
               <Header />
-              <main id="main-content" className="flex-1">{children}</main>
+              <main id="main-content" className="flex-1">
+                <PageTransition>{children}</PageTransition>
+              </main>
               <Footer />
             </ToastProvider>
           </SettingsProvider>

@@ -224,7 +224,7 @@ export function BlogList({ posts }: { posts: BlogPost[] }) {
           <button
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={safePage === 1}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border text-foreground transition-colors hover:bg-muted disabled:opacity-40 disabled:pointer-events-none"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-md border border-border text-foreground transition-colors hover:bg-muted disabled:opacity-40 disabled:pointer-events-none"
             aria-label="Previous page"
           >
             <ChevronLeft className="h-4 w-4" />
@@ -234,7 +234,7 @@ export function BlogList({ posts }: { posts: BlogPost[] }) {
             <button
               key={n}
               onClick={() => setPage(n)}
-              className={`inline-flex h-9 w-9 items-center justify-center rounded-md text-sm font-medium transition-colors ${
+              className={`inline-flex h-11 w-11 items-center justify-center rounded-md text-sm font-medium transition-colors ${
                 n === safePage
                   ? "bg-accent text-white"
                   : "border border-border text-foreground hover:bg-muted"
@@ -248,7 +248,7 @@ export function BlogList({ posts }: { posts: BlogPost[] }) {
           <button
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={safePage === totalPages}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border text-foreground transition-colors hover:bg-muted disabled:opacity-40 disabled:pointer-events-none"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-md border border-border text-foreground transition-colors hover:bg-muted disabled:opacity-40 disabled:pointer-events-none"
             aria-label="Next page"
           >
             <ChevronRight className="h-4 w-4" />

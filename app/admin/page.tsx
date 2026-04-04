@@ -5,7 +5,7 @@ import { signOutAction } from "@/app/actions/auth";
 import {
   TrendingUp, LogOut, FileText, Briefcase, MessageSquare,
   Users, Mail, Eye, Clock, Settings, FolderOpen,
-  Image as ImageIcon, Heart, Layout, ToggleLeft, HardDrive,
+  Image as ImageIcon, Heart, Layout, ToggleLeft, HardDrive, Send,
 } from "lucide-react";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
@@ -22,6 +22,7 @@ const ADMIN_LINKS = [
   { label: "Hobbies", href: "/admin/hobbies", icon: Heart, description: "Hobbies and interests" },
   { label: "Contacts", href: "/admin/contacts", icon: MessageSquare, description: "View contact form messages" },
   { label: "Subscribers", href: "/admin/subscribers", icon: Mail, description: "Newsletter subscriber list" },
+  { label: "Newsletter", href: "/admin/newsletter", icon: Send, description: "Compose and send broadcasts" },
   { label: "Testimonials", href: "/admin/testimonials", icon: Users, description: "Manage client testimonials" },
   { label: "Media Library", href: "/admin/media-library", icon: HardDrive, description: "Browse all storage files" },
 ];

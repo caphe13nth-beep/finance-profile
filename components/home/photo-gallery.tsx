@@ -110,21 +110,27 @@ export function PhotoGallery({ photos }: { photos: Photo[] }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[70] flex items-center justify-center bg-black/90 p-4"
+            className="fixed inset-0 z-[70] flex items-center justify-center bg-black/90 p-4 touch-pan-y"
             onClick={closeLightbox}
+            onTouchStart={(e) => { (e.currentTarget as HTMLDivElement).dataset.touchX = String(e.touches[0].clientX); }}
+            onTouchEnd={(e) => {
+              const startX = Number((e.currentTarget as HTMLDivElement).dataset.touchX ?? 0);
+              const diff = (e.changedTouches[0]?.clientX ?? 0) - startX;
+              if (Math.abs(diff) > 50) { e.stopPropagation(); diff > 0 ? prev() : next(); }
+            }}
           >
-            <button onClick={closeLightbox} className="absolute right-4 top-4 rounded-full bg-white/10 p-2 text-white hover:bg-white/20" aria-label="Close">
+            <button onClick={closeLightbox} className="absolute right-4 top-4 rounded-full bg-white/10 p-3 text-white hover:bg-white/20" aria-label="Close">
               <X className="h-5 w-5" />
             </button>
 
             {lightbox > 0 && (
-              <button onClick={(e) => { e.stopPropagation(); prev(); }} className="absolute left-4 rounded-full bg-white/10 p-2 text-white hover:bg-white/20" aria-label="Previous">
+              <button onClick={(e) => { e.stopPropagation(); prev(); }} className="absolute left-4 rounded-full bg-white/10 p-3 text-white hover:bg-white/20" aria-label="Previous">
                 <ChevronLeft className="h-5 w-5" />
               </button>
             )}
 
             {lightbox < filtered.length - 1 && (
-              <button onClick={(e) => { e.stopPropagation(); next(); }} className="absolute right-4 rounded-full bg-white/10 p-2 text-white hover:bg-white/20 top-1/2 -translate-y-1/2" aria-label="Next">
+              <button onClick={(e) => { e.stopPropagation(); next(); }} className="absolute right-4 rounded-full bg-white/10 p-3 text-white hover:bg-white/20 top-1/2 -translate-y-1/2" aria-label="Next">
                 <ChevronRight className="h-5 w-5" />
               </button>
             )}

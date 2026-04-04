@@ -58,7 +58,15 @@ export function Testimonials({
           transition={{ duration: 0.5, delay: 0.15 }}
           className="relative mt-12 flex flex-col items-center"
         >
-          <div className="w-full max-w-2xl">
+          <div
+            className="w-full max-w-2xl touch-pan-y"
+            onTouchStart={(e) => { (e.currentTarget as HTMLDivElement).dataset.touchX = String(e.touches[0].clientX); }}
+            onTouchEnd={(e) => {
+              const startX = Number((e.currentTarget as HTMLDivElement).dataset.touchX ?? 0);
+              const diff = (e.changedTouches[0]?.clientX ?? 0) - startX;
+              if (Math.abs(diff) > 50) { diff > 0 ? prev() : next(); }
+            }}
+          >
             <AnimatePresence mode="wait">
               <motion.div
                 key={t.id}
@@ -66,7 +74,7 @@ export function Testimonials({
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.3 }}
-                className="rounded-2xl border border-border bg-card p-8 text-center sm:p-10"
+                className="rounded-2xl border border-border bg-card p-6 text-center sm:p-10"
               >
                 <Quote className="mx-auto h-8 w-8 text-accent/30" />
 
@@ -108,7 +116,7 @@ export function Testimonials({
             <div className="mt-6 flex items-center gap-4">
               <button
                 onClick={prev}
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border text-foreground transition-colors hover:bg-muted"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-border text-foreground transition-colors hover:bg-muted"
                 aria-label="Previous testimonial"
               >
                 <ChevronLeft className="h-4 w-4" />
@@ -131,7 +139,7 @@ export function Testimonials({
 
               <button
                 onClick={next}
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border text-foreground transition-colors hover:bg-muted"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-border text-foreground transition-colors hover:bg-muted"
                 aria-label="Next testimonial"
               >
                 <ChevronRight className="h-4 w-4" />

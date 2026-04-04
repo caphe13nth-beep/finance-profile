@@ -22,7 +22,9 @@
       "Bash(node -e \"const l = require\\('lucide-react'\\); console.log\\('Layout:', !!l.Layout, 'ToggleLeft:', !!l.ToggleLeft\\)\")",
       "Bash(npx shadcn@latest add card --yes)",
       "Bash(npm install:*)",
-      "Read(//z/webapprepo/finance-profile/app/blog/[slug/]/**)"
+      "Read(//z/webapprepo/finance-profile/app/blog/[slug/]/**)",
+      "Bash(grep -l \"useInView\" components/home/*.tsx)",
+      "Bash(grep -n \"grid grid-cols-3 gap-3\" components/calculators/*.tsx)"
     ]
   }
 }

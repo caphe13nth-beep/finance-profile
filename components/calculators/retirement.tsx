@@ -75,7 +75,7 @@ export function RetirementCalculator() {
       </div>
 
       {/* Results */}
-      <div className="mt-6 grid grid-cols-3 gap-3">
+      <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
         <div className="rounded-lg bg-muted/50 p-3 text-center">
           <p className="font-mono text-lg font-bold text-foreground">{final ? fmt(final.balance) : "$0"}</p>
           <p className="text-xs text-muted-foreground">At Retirement</p>

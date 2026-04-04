@@ -53,7 +53,7 @@ export function ContactForm() {
   }
 
   const inputClass =
-    "h-10 w-full rounded-lg border border-input bg-background px-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50";
+    "h-11 w-full rounded-lg border border-input bg-background px-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50";
   const labelClass = "text-sm font-medium text-foreground";
   const errorClass = "mt-1 text-xs text-destructive";
 

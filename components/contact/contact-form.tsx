@@ -7,6 +7,7 @@ import { z } from "zod";
 import { Send, CheckCircle2, AlertCircle } from "lucide-react";
 import { submitContactAction } from "@/app/actions/contact";
 import { useToast } from "@/components/toast";
+import { useTranslations } from "next-intl";
 
 const contactSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -18,6 +19,7 @@ const contactSchema = z.object({
 type ContactFormValues = z.infer<typeof contactSchema>;
 
 export function ContactForm() {
+  const t = useTranslations("ContactForm");
   const formRef = useRef<HTMLFormElement>(null);
   const [state, action, pending] = useActionState(submitContactAction, {
     success: false,
@@ -39,7 +41,7 @@ export function ContactForm() {
   useEffect(() => {
     if (state.success) {
       reset();
-      toast("Message sent successfully!", "success");
+      toast(t("sentToast"), "success");
     }
     if (state.error) {
       toast(state.error, "error");
@@ -61,9 +63,9 @@ export function ContactForm() {
     return (
       <div className="flex flex-col items-center rounded-2xl border border-accent/30 bg-accent/5 px-6 py-12 text-center">
         <CheckCircle2 className="h-12 w-12 text-accent" />
-        <h3 className="mt-4 font-heading text-xl font-bold">Message Sent!</h3>
+        <h3 className="mt-4 font-heading text-xl font-bold">{t("successHeading")}</h3>
         <p className="mt-2 max-w-sm text-sm text-muted-foreground">
-          Thank you for reaching out. I&apos;ll get back to you shortly.
+          {t("successDescription")}
         </p>
       </div>
     );
@@ -74,12 +76,12 @@ export function ContactForm() {
       {/* Name */}
       <div>
         <label htmlFor="name" className={labelClass}>
-          Name <span className="text-destructive">*</span>
+          {t("name")} <span className="text-destructive">*</span>
         </label>
         <input
           id="name"
           {...register("name")}
-          placeholder="Your full name"
+          placeholder={t("namePlaceholder")}
           className={`mt-1.5 ${inputClass}`}
           disabled={pending}
         />
@@ -89,13 +91,13 @@ export function ContactForm() {
       {/* Email */}
       <div>
         <label htmlFor="email" className={labelClass}>
-          Email <span className="text-destructive">*</span>
+          {t("email")} <span className="text-destructive">*</span>
         </label>
         <input
           id="email"
           type="email"
           {...register("email")}
-          placeholder="you@email.com"
+          placeholder={t("emailPlaceholder")}
           className={`mt-1.5 ${inputClass}`}
           disabled={pending}
         />
@@ -105,12 +107,12 @@ export function ContactForm() {
       {/* Subject */}
       <div>
         <label htmlFor="subject" className={labelClass}>
-          Subject
+          {t("subject")}
         </label>
         <input
           id="subject"
           {...register("subject")}
-          placeholder="What is this about?"
+          placeholder={t("subjectPlaceholder")}
           className={`mt-1.5 ${inputClass}`}
           disabled={pending}
         />
@@ -119,13 +121,13 @@ export function ContactForm() {
       {/* Message */}
       <div>
         <label htmlFor="message" className={labelClass}>
-          Message <span className="text-destructive">*</span>
+          {t("message")} <span className="text-destructive">*</span>
         </label>
         <textarea
           id="message"
           {...register("message")}
           rows={5}
-          placeholder="Tell me about your needs..."
+          placeholder={t("messagePlaceholder")}
           className={`mt-1.5 w-full resize-none rounded-lg border border-input bg-background px-3 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50`}
           disabled={pending}
         />
@@ -149,11 +151,11 @@ export function ContactForm() {
         className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-accent px-5 text-sm font-semibold text-white transition-colors hover:bg-accent/80 disabled:opacity-50"
       >
         {pending ? (
-          "Sending..."
+          t("sending")
         ) : (
           <>
             <Send className="h-4 w-4" />
-            Send Message
+            {t("send")}
           </>
         )}
       </button>

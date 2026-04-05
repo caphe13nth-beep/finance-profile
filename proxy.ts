@@ -1,22 +1,28 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import createIntlMiddleware from "next-intl/middleware";
+import { routing } from "./i18n/routing";
+
+const intlMiddleware = createIntlMiddleware(routing);
 
 export async function proxy(request: NextRequest) {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const { pathname } = request.nextUrl;
 
-  // If env vars are missing, skip auth check and let the page handle it
-  if (!url || !key) {
-    return NextResponse.next();
-  }
+  // ── Admin auth guard ────────────────────────────────────
+  if (pathname.startsWith("/admin")) {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  const response = NextResponse.next({
-    request: { headers: request.headers },
-  });
+    if (!url || !key) {
+      return NextResponse.next();
+    }
 
-  const supabase = createServerClient(url, key,
-    {
+    const response = NextResponse.next({
+      request: { headers: request.headers },
+    });
+
+    const supabase = createServerClient(url, key, {
       cookies: {
         getAll() {
           return request.cookies.getAll();
@@ -28,33 +34,46 @@ export async function proxy(request: NextRequest) {
           });
         },
       },
+    });
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    const isProtected = !pathname.startsWith("/admin/login");
+
+    if (isProtected && !user) {
+      const loginUrl = new URL("/admin/login", request.url);
+      loginUrl.searchParams.set("redirect", pathname);
+      return NextResponse.redirect(loginUrl);
     }
-  );
 
-  // Refresh the session (important for token rotation)
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    if (pathname === "/admin/login" && user) {
+      return NextResponse.redirect(new URL("/admin", request.url));
+    }
 
-  // Protect /admin routes (except /admin/login)
-  const isAdminRoute =
-    request.nextUrl.pathname.startsWith("/admin") &&
-    !request.nextUrl.pathname.startsWith("/admin/login");
-
-  if (isAdminRoute && !user) {
-    const loginUrl = new URL("/admin/login", request.url);
-    loginUrl.searchParams.set("redirect", request.nextUrl.pathname);
-    return NextResponse.redirect(loginUrl);
+    return response;
   }
 
-  // If logged in and visiting login page, redirect to admin
-  if (request.nextUrl.pathname === "/admin/login" && user) {
-    return NextResponse.redirect(new URL("/admin", request.url));
+  // ── Skip API, static files, Next internals ──────────────
+  if (
+    pathname.startsWith("/api") ||
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/_vercel") ||
+    pathname.includes(".")
+  ) {
+    return NextResponse.next();
   }
 
-  return response;
+  // ── i18n locale routing for all other paths ─────────────
+  return intlMiddleware(request);
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: [
+    "/admin/:path*",
+    "/",
+    "/(en|vi)/:path*",
+    "/((?!api|_next|_vercel|admin|.*\\..*).*)",
+  ],
 };

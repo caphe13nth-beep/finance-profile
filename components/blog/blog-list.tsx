@@ -1,10 +1,12 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
+import { useTranslations, useLocale } from "next-intl";
 import Image from "next/image";
 import { Search, Clock, ChevronLeft, ChevronRight, Eye } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { SHIMMER_16_9 } from "@/lib/shimmer";
 
 interface BlogPost {
   id: string;
@@ -23,8 +25,9 @@ const POSTS_PER_PAGE = 9;
 
 /* ── Article card ────────────────────────────────────── */
 function ArticleCard({ post }: { post: BlogPost }) {
+  const locale = useLocale();
   const date = post.published_at
-    ? new Date(post.published_at).toLocaleDateString("en-US", {
+    ? new Date(post.published_at).toLocaleDateString(locale, {
         month: "short",
         day: "numeric",
         year: "numeric",
@@ -44,6 +47,8 @@ function ArticleCard({ post }: { post: BlogPost }) {
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             className="object-cover transition-transform duration-500 group-hover:scale-105"
+            placeholder="blur"
+            blurDataURL={SHIMMER_16_9}
           />
         ) : (
           <div className="flex h-full items-center justify-center bg-gradient-to-br from-accent/5 to-gold/5">
@@ -94,6 +99,7 @@ function ArticleCard({ post }: { post: BlogPost }) {
 
 /* ── Main list ───────────────────────────────────────── */
 export function BlogList({ posts }: { posts: BlogPost[] }) {
+  const t = useTranslations("Blog");
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [page, setPage] = useState(1);
@@ -158,7 +164,7 @@ export function BlogList({ posts }: { posts: BlogPost[] }) {
             type="text"
             value={search}
             onChange={(e) => handleSearchChange(e.target.value)}
-            placeholder="Search articles..."
+            placeholder={t("searchPlaceholder")}
             className="h-10 w-full rounded-lg border border-input bg-background pl-9 pr-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
           />
         </div>
@@ -174,7 +180,7 @@ export function BlogList({ posts }: { posts: BlogPost[] }) {
                   : "bg-muted text-muted-foreground hover:text-foreground"
               }`}
             >
-              All
+              {t("all")}
             </button>
             {categories.map((cat) => (
               <button
@@ -211,7 +217,7 @@ export function BlogList({ posts }: { posts: BlogPost[] }) {
         </AnimatePresence>
       ) : (
         <p className="mt-12 text-center text-muted-foreground">
-          No articles match your search.
+          {t("noResults")}
         </p>
       )}
 
@@ -225,7 +231,7 @@ export function BlogList({ posts }: { posts: BlogPost[] }) {
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={safePage === 1}
             className="inline-flex h-11 w-11 items-center justify-center rounded-md border border-border text-foreground transition-colors hover:bg-muted disabled:opacity-40 disabled:pointer-events-none"
-            aria-label="Previous page"
+            aria-label={t("previousPage")}
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
@@ -249,7 +255,7 @@ export function BlogList({ posts }: { posts: BlogPost[] }) {
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={safePage === totalPages}
             className="inline-flex h-11 w-11 items-center justify-center rounded-md border border-border text-foreground transition-colors hover:bg-muted disabled:opacity-40 disabled:pointer-events-none"
-            aria-label="Next page"
+            aria-label={t("nextPage")}
           >
             <ChevronRight className="h-4 w-4" />
           </button>

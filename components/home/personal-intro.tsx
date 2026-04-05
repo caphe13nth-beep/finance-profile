@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 
 interface Profile {
   name: string;
@@ -14,6 +15,7 @@ interface Profile {
 export function PersonalIntro({ profile }: { profile: Profile | null }) {
   const ref = useRef<HTMLElement>(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
+  const t = useTranslations("Home");
 
   if (!profile) return null;
 
@@ -52,7 +54,7 @@ export function PersonalIntro({ profile }: { profile: Profile | null }) {
             transition={{ duration: 0.6, delay: 0.15 }}
           >
             <p className="text-sm font-semibold uppercase tracking-wider text-accent">
-              Hey, I'm
+              {t("personalIntroLabel")}
             </p>
             <h2 className="mt-2 font-heading text-3xl font-bold tracking-tight sm:text-4xl">
               {profile.name}

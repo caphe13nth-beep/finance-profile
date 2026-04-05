@@ -24,7 +24,17 @@
       "Bash(npm install:*)",
       "Read(//z/webapprepo/finance-profile/app/blog/[slug/]/**)",
       "Bash(grep -l \"useInView\" components/home/*.tsx)",
-      "Bash(grep -n \"grid grid-cols-3 gap-3\" components/calculators/*.tsx)"
+      "Bash(grep -n \"grid grid-cols-3 gap-3\" components/calculators/*.tsx)",
+      "Read(//tmp/**)",
+      "Bash(npx tsc:*)",
+      "Bash(find:*)",
+      "Bash(ls -la Z:/webapprepo/finance-profile/middleware.*)",
+      "Bash(mkdir -p app/\\\\\\\\[locale\\\\\\\\])",
+      "Bash(mv app/about app/blog app/contact app/health app/insights app/portfolio app/resources app/services app/tools app/\\\\\\\\[locale\\\\\\\\]/)",
+      "Bash(mv app/page.tsx app/\\\\\\\\[locale\\\\\\\\]/page.tsx)",
+      "Bash(mv app/not-found.tsx app/\\\\\\\\[locale\\\\\\\\]/not-found.tsx)",
+      "Bash(mv app/loading.tsx app/\\\\\\\\[locale\\\\\\\\]/loading.tsx)",
+      "Bash(mv app/error.tsx app/\\\\\\\\[locale\\\\\\\\]/error.tsx)"
     ]
   }
 }

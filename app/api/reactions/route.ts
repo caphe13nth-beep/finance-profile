@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { cookies } from "next/headers";
+import { rateLimit } from "@/lib/rate-limit";
 
 function getVisitorId(cookieStore: Awaited<ReturnType<typeof cookies>>): string {
   const existing = cookieStore.get("visitor_id")?.value;
@@ -9,6 +10,9 @@ function getVisitorId(cookieStore: Awaited<ReturnType<typeof cookies>>): string 
 }
 
 export async function POST(request: NextRequest) {
+  const limited = await rateLimit(request, "reactions");
+  if (limited) return limited;
+
   try {
     const { post_id, reaction } = await request.json();
 

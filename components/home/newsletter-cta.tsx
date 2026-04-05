@@ -5,10 +5,12 @@ import { useActionState } from "react";
 import { motion, useInView } from "framer-motion";
 import { Mail, CheckCircle2, AlertCircle } from "lucide-react";
 import { subscribeAction } from "@/app/actions/newsletter";
+import { useTranslations } from "next-intl";
 
 export function NewsletterCta() {
   const ref = useRef<HTMLElement>(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
+  const t = useTranslations("Newsletter");
   const [state, action, pending] = useActionState(subscribeAction, {
     success: false,
     error: null,
@@ -32,17 +34,16 @@ export function NewsletterCta() {
             </div>
 
             <h2 className="mt-6 font-heading text-3xl font-bold tracking-tight sm:text-4xl">
-              Stay Ahead of the Market
+              {t("heading")}
             </h2>
             <p className="mx-auto mt-3 max-w-md text-muted-foreground">
-              Get weekly insights on market trends, portfolio strategies, and
-              actionable investment ideas delivered to your inbox.
+              {t("description")}
             </p>
 
             {state.success ? (
               <div className="mx-auto mt-8 flex max-w-sm items-center justify-center gap-2 rounded-lg bg-accent/10 px-4 py-3 text-sm font-medium text-accent">
                 <CheckCircle2 className="h-5 w-5" />
-                You&apos;re subscribed! Check your inbox.
+                {t("subscribed")}
               </div>
             ) : (
               <form
@@ -53,7 +54,7 @@ export function NewsletterCta() {
                   type="email"
                   name="email"
                   required
-                  placeholder="Enter your email"
+                  placeholder={t("emailPlaceholder")}
                   className="h-11 flex-1 rounded-lg border border-input bg-background px-4 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                 />
                 <button
@@ -61,7 +62,7 @@ export function NewsletterCta() {
                   disabled={pending}
                   className="h-11 shrink-0 rounded-lg bg-accent px-5 text-sm font-semibold text-white transition-colors hover:bg-accent/80 disabled:opacity-50"
                 >
-                  {pending ? "Subscribing..." : "Subscribe"}
+                  {pending ? t("subscribing") : t("subscribe")}
                 </button>
               </form>
             )}
@@ -74,7 +75,7 @@ export function NewsletterCta() {
             )}
 
             <p className="mt-4 text-xs text-muted-foreground">
-              No spam. Unsubscribe anytime.
+              {t("noSpam")}
             </p>
           </div>
         </motion.div>

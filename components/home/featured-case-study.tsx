@@ -4,7 +4,8 @@ import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { BarChart, Bar, ResponsiveContainer, XAxis } from "recharts";
 import { ArrowRight, TrendingUp } from "lucide-react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 
 interface CaseStudy {
   id: string;
@@ -55,6 +56,7 @@ export function FeaturedCaseStudy({
 }) {
   const ref = useRef<HTMLElement>(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
+  const t = useTranslations("Home");
 
   if (!caseStudy) return null;
 
@@ -73,7 +75,7 @@ export function FeaturedCaseStudy({
           transition={{ duration: 0.5 }}
         >
           <p className="text-sm font-semibold uppercase tracking-wider text-accent">
-            Featured Case Study
+            {t("caseStudyLabel")}
           </p>
           <h2 className="mt-2 font-heading text-3xl font-bold tracking-tight sm:text-4xl">
             {caseStudy.title}
@@ -104,7 +106,7 @@ export function FeaturedCaseStudy({
                   <span className="flex h-6 w-6 items-center justify-center rounded-full bg-destructive/10 text-xs font-bold">
                     1
                   </span>
-                  Challenge
+                  {t("challenge")}
                 </h3>
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
                   {caseStudy.challenge}
@@ -118,7 +120,7 @@ export function FeaturedCaseStudy({
                   <span className="flex h-6 w-6 items-center justify-center rounded-full bg-chart-2/10 text-xs font-bold">
                     2
                   </span>
-                  Strategy
+                  {t("strategy")}
                 </h3>
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
                   {caseStudy.strategy}
@@ -132,7 +134,7 @@ export function FeaturedCaseStudy({
                   <span className="flex h-6 w-6 items-center justify-center rounded-full bg-accent/10 text-xs font-bold">
                     3
                   </span>
-                  Result
+                  {t("result")}
                 </h3>
                 <p className="mt-3 text-sm leading-relaxed text-foreground">
                   {caseStudy.result}
@@ -151,7 +153,7 @@ export function FeaturedCaseStudy({
             {metrics && Object.keys(metrics).length > 0 && (
               <div className="rounded-xl border border-border bg-card p-6">
                 <h3 className="font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                  Key Metrics
+                  {t("keyMetrics")}
                 </h3>
 
                 <div className="mt-4 grid grid-cols-2 gap-4">
@@ -180,7 +182,7 @@ export function FeaturedCaseStudy({
               className="inline-flex items-center gap-2 self-start rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-accent/80"
             >
               <TrendingUp className="h-4 w-4" />
-              View All Case Studies
+              {t("viewAllCaseStudies")}
               <ArrowRight className="h-4 w-4" />
             </Link>
           </motion.div>

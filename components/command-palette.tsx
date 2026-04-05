@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { useTheme } from "next-themes";
 import { Command } from "cmdk";
 import { createClient } from "@/lib/supabase/client";

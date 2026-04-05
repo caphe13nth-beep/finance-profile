@@ -8,6 +8,7 @@ import {
   Dumbbell, Globe, Coffee, Utensils, Plane, Mountain,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface Hobby {
   id: string;
@@ -32,6 +33,7 @@ function getIcon(name: string | null): LucideIcon {
 export function HobbiesSection({ hobbies }: { hobbies: Hobby[] }) {
   const ref = useRef<HTMLElement>(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
+  const t = useTranslations("Home");
 
   if (hobbies.length === 0) return null;
 
@@ -44,10 +46,10 @@ export function HobbiesSection({ hobbies }: { hobbies: Hobby[] }) {
           transition={{ duration: 0.5 }}
         >
           <p className="text-sm font-semibold uppercase tracking-wider text-accent">
-            Beyond Work
+            {t("hobbiesLabel")}
           </p>
           <h2 className="mt-2 font-heading text-3xl font-bold tracking-tight sm:text-4xl">
-            Hobbies &amp; Interests
+            {t("hobbiesHeading")}
           </h2>
         </motion.div>
 

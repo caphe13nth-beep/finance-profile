@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { setRequestLocale } from "next-intl/server";
 import { getProfile, getCareerTimeline, getPhotoGallery, getHobbiesInterests } from "@/lib/supabase/queries";
 import { fetchAllSettings } from "@/lib/supabase/settings";
 import { AboutLayout } from "@/components/about/about-layout";
@@ -11,8 +12,6 @@ export const metadata = siteMetadata({
   path: "/about",
 });
 
-export const revalidate = 3600;
-
 interface Certification {
   name: string;
   issuer?: string;
@@ -20,7 +19,9 @@ interface Certification {
   url?: string;
 }
 
-export default async function AboutPage() {
+export default async function AboutPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
   const settings = await fetchAllSettings();
   if (!settings.page_visibility.about) notFound();
 

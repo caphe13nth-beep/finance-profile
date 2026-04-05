@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { Briefcase } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface TimelineEntry {
   id: string;
@@ -73,6 +74,7 @@ export function CareerTimeline({
 }) {
   const ref = useRef<HTMLElement>(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
+  const t = useTranslations("Home");
 
   return (
     <section id="timeline" ref={ref} className="py-16 sm:py-20">
@@ -83,10 +85,10 @@ export function CareerTimeline({
           transition={{ duration: 0.5 }}
         >
           <p className="text-sm font-semibold uppercase tracking-wider text-accent">
-            Career
+            {t("careerLabel")}
           </p>
           <h2 className="mt-2 font-heading text-3xl font-bold tracking-tight sm:text-4xl">
-            Professional Journey
+            {t("careerHeading")}
           </h2>
         </motion.div>
 
@@ -102,7 +104,7 @@ export function CareerTimeline({
             ))
           ) : (
             <p className="text-muted-foreground">
-              Timeline entries coming soon.
+              {t("timelineEmpty")}
             </p>
           )}
         </div>

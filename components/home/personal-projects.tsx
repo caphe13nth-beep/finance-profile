@@ -3,7 +3,9 @@
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import Image from "next/image";
+import { SHIMMER_16_9 } from "@/lib/shimmer";
 import { ExternalLink, Star } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface Project {
   id: string;
@@ -20,6 +22,7 @@ interface Project {
 export function PersonalProjects({ projects }: { projects: Project[] }) {
   const ref = useRef<HTMLElement>(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
+  const t = useTranslations("Home");
 
   if (projects.length === 0) return null;
 
@@ -32,10 +35,10 @@ export function PersonalProjects({ projects }: { projects: Project[] }) {
           transition={{ duration: 0.5 }}
         >
           <p className="text-sm font-semibold uppercase tracking-wider text-accent">
-            Side Projects
+            {t("projectsLabel")}
           </p>
           <h2 className="mt-2 font-heading text-3xl font-bold tracking-tight sm:text-4xl">
-            Things I've Built
+            {t("projectsHeading")}
           </h2>
         </motion.div>
 
@@ -57,6 +60,8 @@ export function PersonalProjects({ projects }: { projects: Project[] }) {
                     fill
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    placeholder="blur"
+                    blurDataURL={SHIMMER_16_9}
                   />
                 ) : (
                   <div className="flex h-full items-center justify-center bg-gradient-to-br from-accent/5 to-chart-2/5">
@@ -67,7 +72,7 @@ export function PersonalProjects({ projects }: { projects: Project[] }) {
                 )}
                 {project.is_featured && (
                   <div className="absolute left-2 top-2 flex items-center gap-1 rounded-full bg-accent px-2 py-0.5 text-xs font-medium text-white">
-                    <Star className="h-3 w-3" /> Featured
+                    <Star className="h-3 w-3" /> {t("featured")}
                   </div>
                 )}
               </div>
@@ -110,7 +115,7 @@ export function PersonalProjects({ projects }: { projects: Project[] }) {
                     className="mt-4 inline-flex items-center gap-1.5 self-start text-sm font-medium text-accent transition-colors hover:text-accent/80"
                   >
                     <ExternalLink className="h-3.5 w-3.5" />
-                    View Project
+                    {t("viewProject")}
                   </a>
                 )}
               </div>

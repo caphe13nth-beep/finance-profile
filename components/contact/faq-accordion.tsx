@@ -3,12 +3,14 @@
 import * as Accordion from "@radix-ui/react-accordion";
 import { ChevronDown } from "lucide-react";
 import { FAQ_ITEMS } from "@/lib/faq-data";
+import { useTranslations } from "next-intl";
 
 export function FaqAccordion() {
+  const t = useTranslations("Contact");
   return (
     <div>
       <h2 className="font-heading text-2xl font-bold tracking-tight">
-        Frequently Asked Questions
+        {t("faqHeading")}
       </h2>
 
       <Accordion.Root type="single" collapsible className="mt-6 space-y-3">

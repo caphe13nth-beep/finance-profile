@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { getMarketInsights } from "@/lib/supabase/queries";
 import { fetchAllSettings } from "@/lib/supabase/settings";
 import { InsightsList } from "@/components/insights/insights-list";
@@ -10,9 +11,10 @@ export const metadata = siteMetadata({
   path: "/insights",
 });
 
-export const revalidate = 3600;
-
-export default async function InsightsPage() {
+export default async function InsightsPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations("Insights");
   const settings = await fetchAllSettings();
   if (!settings.page_visibility.market_insights) notFound();
 
@@ -23,14 +25,13 @@ export default async function InsightsPage() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="max-w-2xl">
           <p className="text-sm font-semibold uppercase tracking-wider text-accent">
-            Research
+            {t("label")}
           </p>
           <h1 className="mt-2 font-heading text-4xl font-bold tracking-tight sm:text-5xl">
-            Market Insights
+            {t("heading")}
           </h1>
           <p className="mt-4 text-lg text-muted-foreground">
-            In-depth analysis, investment theses, and actionable research
-            across asset classes and sectors.
+            {t("description")}
           </p>
         </div>
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { Mail, MapPin } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 function LinkedInIcon({ className }: { className?: string }) {
   return (
@@ -33,10 +34,11 @@ const SOCIAL_ITEMS = [
 ];
 
 export function SocialLinks() {
+  const t = useTranslations("Contact");
   return (
     <div className="space-y-6">
       <h2 className="font-heading text-2xl font-bold tracking-tight">
-        Get in Touch
+        {t("getInTouch")}
       </h2>
 
       <div className="space-y-4">
@@ -45,7 +47,7 @@ export function SocialLinks() {
             <Mail className="h-5 w-5 text-accent" />
           </div>
           <div>
-            <p className="text-sm font-medium text-foreground">Email</p>
+            <p className="text-sm font-medium text-foreground">{t("email")}</p>
             <a
               href="mailto:hello@financeprofile.com"
               className="text-sm text-muted-foreground transition-colors hover:text-accent"
@@ -60,7 +62,7 @@ export function SocialLinks() {
             <MapPin className="h-5 w-5 text-accent" />
           </div>
           <div>
-            <p className="text-sm font-medium text-foreground">Location</p>
+            <p className="text-sm font-medium text-foreground">{t("location")}</p>
             <p className="text-sm text-muted-foreground">
               New York, NY
             </p>
@@ -69,7 +71,7 @@ export function SocialLinks() {
       </div>
 
       <div>
-        <p className="text-sm font-medium text-foreground">Social</p>
+        <p className="text-sm font-medium text-foreground">{t("social")}</p>
         <div className="mt-3 flex gap-3">
           {SOCIAL_ITEMS.map(({ label, href, icon: Icon }) => (
             <a

@@ -1,4 +1,4 @@
-import { createClient } from "./server";
+import { unstable_cache } from "next/cache";
 import { createAdminClient } from "./admin";
 import type { SiteSettings } from "@/types/settings";
 
@@ -71,74 +71,56 @@ const DEFAULTS: SiteSettings = {
 };
 
 /**
- * Fetch all site_settings rows from Supabase and return
- * a typed SiteSettings object, merged with defaults.
- * Safe to call from server components and server actions.
+ * Fetch all site_settings rows using admin client (no cookies — safe inside unstable_cache).
  */
 async function fetchSettingsRows(): Promise<{ key: string; value: unknown }[] | null> {
-  // Try server client (has cookie context)
   try {
-    console.log("[settings] trying server client...");
-    const supabase = await createClient();
-    const { data, error } = await supabase.from("site_settings").select("key, value");
-    if (error) {
-      console.warn("[settings] server client query error:", error.message);
-    } else {
-      console.log("[settings] server client OK, rows:", data?.length ?? 0);
-      return data;
-    }
-  } catch (e) {
-    console.warn("[settings] server client failed:", e instanceof Error ? e.message : e);
-  }
-
-  // Fallback: admin client (no cookies needed)
-  try {
-    console.log("[settings] trying admin client...");
     const supabase = createAdminClient();
     const { data, error } = await supabase.from("site_settings").select("key, value");
     if (error) {
-      console.warn("[settings] admin client query error:", error.message);
-    } else {
-      console.log("[settings] admin client OK, rows:", data?.length ?? 0);
-      return data;
+      console.warn("[settings] query error:", error.message);
+      return null;
     }
+    return data;
   } catch (e) {
-    console.warn("[settings] admin client failed:", e instanceof Error ? e.message : e);
-  }
-
-  console.warn("[settings] all clients failed, using DEFAULTS");
-  return null;
-}
-
-export async function fetchAllSettings(): Promise<SiteSettings> {
-  try {
-    const data = await fetchSettingsRows();
-
-    if (!data) return DEFAULTS;
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const map: Record<string, any> = Object.fromEntries(data.map((r) => [r.key, r.value]));
-
-    return {
-      section_visibility: { ...DEFAULTS.section_visibility, ...(map.section_visibility ?? {}) },
-      page_visibility: { ...DEFAULTS.page_visibility, ...(map.page_visibility ?? {}) },
-      site_identity: { ...DEFAULTS.site_identity, ...(map.site_identity ?? {}) },
-      seo_defaults: { ...DEFAULTS.seo_defaults, ...(map.seo_defaults ?? {}) },
-      hero_content: { ...DEFAULTS.hero_content, ...(map.hero_content ?? {}) },
-      stats_bar: map.stats_bar ?? DEFAULTS.stats_bar,
-      social_links: { ...DEFAULTS.social_links, ...(map.social_links ?? {}) },
-      now_section: { ...DEFAULTS.now_section, ...(map.now_section ?? {}) },
-      theme: {
-        ...DEFAULTS.theme,
-        ...(map.theme ?? {}),
-        colors: { ...DEFAULTS.theme.colors, ...(map.theme?.colors ?? {}) },
-        dark_colors: { ...DEFAULTS.theme.dark_colors, ...(map.theme?.dark_colors ?? {}) },
-        fonts: { ...DEFAULTS.theme.fonts, ...(map.theme?.fonts ?? {}) },
-      },
-    };
-  } catch {
-    return DEFAULTS;
+    console.warn("[settings] fetch failed:", e instanceof Error ? e.message : e);
+    return null;
   }
 }
+
+export const fetchAllSettings = unstable_cache(
+  async (): Promise<SiteSettings> => {
+    try {
+      const data = await fetchSettingsRows();
+
+      if (!data) return DEFAULTS;
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const map: Record<string, any> = Object.fromEntries(data.map((r) => [r.key, r.value]));
+
+      return {
+        section_visibility: { ...DEFAULTS.section_visibility, ...(map.section_visibility ?? {}) },
+        page_visibility: { ...DEFAULTS.page_visibility, ...(map.page_visibility ?? {}) },
+        site_identity: { ...DEFAULTS.site_identity, ...(map.site_identity ?? {}) },
+        seo_defaults: { ...DEFAULTS.seo_defaults, ...(map.seo_defaults ?? {}) },
+        hero_content: { ...DEFAULTS.hero_content, ...(map.hero_content ?? {}) },
+        stats_bar: map.stats_bar ?? DEFAULTS.stats_bar,
+        social_links: { ...DEFAULTS.social_links, ...(map.social_links ?? {}) },
+        now_section: { ...DEFAULTS.now_section, ...(map.now_section ?? {}) },
+        theme: {
+          ...DEFAULTS.theme,
+          ...(map.theme ?? {}),
+          colors: { ...DEFAULTS.theme.colors, ...(map.theme?.colors ?? {}) },
+          dark_colors: { ...DEFAULTS.theme.dark_colors, ...(map.theme?.dark_colors ?? {}) },
+          fonts: { ...DEFAULTS.theme.fonts, ...(map.theme?.fonts ?? {}) },
+        },
+      };
+    } catch {
+      return DEFAULTS;
+    }
+  },
+  ["site-settings"],
+  { revalidate: 3600, tags: ["settings"] }
+);
 
 export { DEFAULTS as SETTINGS_DEFAULTS };

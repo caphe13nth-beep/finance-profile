@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
   if (body.tags?.length) {
     for (const tag of body.tags) {
       if (typeof tag !== "string") continue;
-      revalidateTag(tag, "max");
+      revalidateTag(tag, { expire: 0 });
       revalidated.push(`tag:${tag}`);
     }
   }

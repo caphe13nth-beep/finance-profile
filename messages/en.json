@@ -1,0 +1,157 @@
+{
+  "Nav": {
+    "home": "Home",
+    "about": "About",
+    "services": "Services",
+    "portfolio": "Portfolio",
+    "blog": "Blog",
+    "insights": "Insights",
+    "resources": "Resources",
+    "tools": "Tools",
+    "contact": "Contact",
+    "menu": "Menu",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "skipToContent": "Skip to content"
+  },
+  "Footer": {
+    "navigation": "Navigation",
+    "connect": "Connect",
+    "newsletter": "Newsletter",
+    "newsletterDescription": "Weekly market insights delivered to your inbox.",
+    "emailPlaceholder": "you@email.com",
+    "join": "Join",
+    "subscribedSuccess": "Subscribed successfully!",
+    "subscribedError": "Something went wrong. Try again.",
+    "comingSoon": "Coming soon."
+  },
+  "Home": {
+    "personalIntroLabel": "Hey, I'm",
+    "nowLabel": "Now",
+    "nowHeading": "What I'm Doing Now",
+    "lastUpdated": "Last updated {date}",
+    "careerLabel": "Career",
+    "careerHeading": "Professional Journey",
+    "timelineEmpty": "Timeline entries coming soon.",
+    "testimonialsLabel": "Testimonials",
+    "testimonialsHeading": "Client Feedback",
+    "previousTestimonial": "Previous testimonial",
+    "nextTestimonial": "Next testimonial",
+    "goToTestimonial": "Go to testimonial {number}",
+    "galleryLabel": "Gallery",
+    "galleryHeading": "Photo Gallery",
+    "allFilter": "All",
+    "close": "Close",
+    "previous": "Previous",
+    "next": "Next",
+    "hobbiesLabel": "Beyond Work",
+    "hobbiesHeading": "Hobbies & Interests",
+    "projectsLabel": "Side Projects",
+    "projectsHeading": "Things I've Built",
+    "featured": "Featured",
+    "viewProject": "View Project",
+    "insightsLabel": "Blog",
+    "insightsHeading": "Latest Insights",
+    "viewAllInsights": "View All Insights",
+    "noInsights": "No insights published yet. Check back soon.",
+    "readArticle": "Read Article",
+    "minRead": "{min} min",
+    "caseStudyLabel": "Featured Case Study",
+    "challenge": "Challenge",
+    "strategy": "Strategy",
+    "result": "Result",
+    "keyMetrics": "Key Metrics",
+    "viewAllCaseStudies": "View All Case Studies"
+  },
+  "Newsletter": {
+    "heading": "Stay Ahead of the Market",
+    "description": "Get weekly insights on market trends, portfolio strategies, and actionable investment ideas delivered to your inbox.",
+    "subscribed": "You're subscribed! Check your inbox.",
+    "emailPlaceholder": "Enter your email",
+    "subscribe": "Subscribe",
+    "subscribing": "Subscribing...",
+    "noSpam": "No spam. Unsubscribe anytime."
+  },
+  "Blog": {
+    "label": "Insights",
+    "heading": "Blog",
+    "description": "Market analysis, investment strategies, and financial perspectives.",
+    "searchPlaceholder": "Search articles...",
+    "all": "All",
+    "noResults": "No articles match your search.",
+    "previousPage": "Previous page",
+    "nextPage": "Next page",
+    "relatedArticles": "Related Articles"
+  },
+  "Services": {
+    "label": "What I Offer",
+    "heading": "Services",
+    "description": "Tailored financial solutions to help you grow, protect, and optimize your wealth.",
+    "empty": "Services coming soon. Check back shortly."
+  },
+  "Portfolio": {
+    "label": "Portfolio",
+    "heading": "Case Studies",
+    "description": "Real-world results across industries and market conditions.",
+    "empty": "Case studies coming soon."
+  },
+  "Insights": {
+    "label": "Research",
+    "heading": "Market Insights",
+    "description": "In-depth analysis, investment theses, and actionable research across asset classes and sectors."
+  },
+  "Resources": {
+    "label": "Resources",
+    "heading": "Downloads & Guides",
+    "description": "Free whitepapers, templates, and guides to help you navigate markets and optimize your financial strategy."
+  },
+  "Tools": {
+    "label": "Tools",
+    "heading": "Financial Calculators",
+    "description": "Interactive tools to model investments, plan retirement, and evaluate financial decisions."
+  },
+  "Contact": {
+    "label": "Contact",
+    "heading": "Let's Connect",
+    "description": "Have a question or interested in working together? Send me a message and I'll get back to you within one business day.",
+    "getInTouch": "Get in Touch",
+    "email": "Email",
+    "location": "Location",
+    "social": "Social",
+    "faqHeading": "Frequently Asked Questions"
+  },
+  "ContactForm": {
+    "name": "Name",
+    "namePlaceholder": "Your full name",
+    "nameRequired": "Name is required",
+    "email": "Email",
+    "emailPlaceholder": "you@email.com",
+    "emailInvalid": "Please enter a valid email",
+    "subject": "Subject",
+    "subjectPlaceholder": "What is this about?",
+    "message": "Message",
+    "messagePlaceholder": "Tell me about your needs...",
+    "messageMin": "Message must be at least 10 characters",
+    "required": "*",
+    "send": "Send Message",
+    "sending": "Sending...",
+    "successHeading": "Message Sent!",
+    "successDescription": "Thank you for reaching out. I'll get back to you shortly.",
+    "sentToast": "Message sent successfully!"
+  },
+  "NotFound": {
+    "code": "404",
+    "heading": "Page Not Found",
+    "description": "The page you're looking for doesn't exist or has been moved.",
+    "backHome": "Back to Home"
+  },
+  "About": {
+    "label": "About",
+    "heading": "About"
+  },
+  "LocaleSwitcher": {
+    "en": "English",
+    "vi": "Tiếng Việt",
+    "label": "Language"
+  }
+}

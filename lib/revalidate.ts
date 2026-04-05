@@ -1,6 +1,6 @@
 /**
  * Call the revalidation API from client-side admin pages
- * after content changes to bust ISR caches on public pages.
+ * after content changes to bust caches on public pages.
  */
 export async function revalidatePaths(paths: string[]) {
   try {
@@ -13,7 +13,26 @@ export async function revalidatePaths(paths: string[]) {
       body: JSON.stringify({ paths }),
     });
   } catch {
-    // Non-critical — ISR will eventually catch up
+    // Non-critical — cache will eventually expire
+  }
+}
+
+/**
+ * Call the revalidation API from client-side admin pages
+ * to invalidate cache entries by tag.
+ */
+export async function revalidateTags(tags: string[]) {
+  try {
+    await fetch("/api/revalidate", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-revalidate-token": process.env.NEXT_PUBLIC_REVALIDATE_SECRET ?? "",
+      },
+      body: JSON.stringify({ tags }),
+    });
+  } catch {
+    // Non-critical — cache will eventually expire
   }
 }
 

@@ -1,8 +1,10 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import Image from "next/image";
 import { Clock } from "lucide-react";
+import { SHIMMER_16_9 } from "@/lib/shimmer";
+import { useTranslations, useLocale } from "next-intl";
 
 interface RelatedPost {
   id: string;
@@ -17,18 +19,20 @@ interface RelatedPost {
 }
 
 export function RelatedArticles({ posts }: { posts: RelatedPost[] }) {
+  const t = useTranslations("Blog");
+  const locale = useLocale();
   if (posts.length === 0) return null;
 
   return (
     <section className="mt-16 border-t border-border pt-12">
       <h2 className="font-heading text-2xl font-bold tracking-tight">
-        Related Articles
+        {t("relatedArticles")}
       </h2>
 
       <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {posts.map((post) => {
           const date = post.published_at
-            ? new Date(post.published_at).toLocaleDateString("en-US", {
+            ? new Date(post.published_at).toLocaleDateString(locale, {
                 month: "short",
                 day: "numeric",
                 year: "numeric",
@@ -49,6 +53,8 @@ export function RelatedArticles({ posts }: { posts: RelatedPost[] }) {
                     fill
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    placeholder="blur"
+                    blurDataURL={SHIMMER_16_9}
                   />
                 ) : (
                   <div className="flex h-full items-center justify-center bg-gradient-to-br from-accent/5 to-gold/5">

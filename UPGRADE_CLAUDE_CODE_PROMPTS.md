@@ -122,7 +122,7 @@ Read CLAUDE.md files before every prompt below.
 
 >Read CLAUDE.md and /app/CLAUDE.md before starting Upgrade the table of contents on blog post pages. Auto-generate from all h2 and h3 headings in the post body. Highlight the current section based on scroll position using IntersectionObserver. Make it collapsible on mobile with a floating TOC button. Smooth scroll to heading on click.
 
-### F.4 — Mobile optimization
+### F.5 — Mobile optimization
 Read all CLAUDE.md files. Do a full mobile optimization pass across the entire project. Test every page and component at 375px and 768px widths. Specifically fix: 1) Navbar — ensure hamburger menu works with animated slide-in drawer, close on link click, close on outside click. 2) Hero section — stack layout vertically, image above or below text, CTAs full width. 3) Stats bar — horizontal scroll or 2-column grid on mobile instead of 5 across. 4) Card grids (blog, services, projects, case studies, testimonials) — single column on mobile, 2 columns on tablet. 5) Career timeline — switch from two-sided to single-sided on mobile. 6) Photo gallery — single column masonry on mobile. 7) Blog post page — hide desktop TOC sidebar, add a floating TOC button that opens a bottom sheet, reading progress bar stays at top. 8) Financial calculators — stack inputs vertically, chart goes full width below. 9) Contact form — full width inputs. 10) Footer — stack columns vertically. 11) Admin pages — admin sidebar collapses into a top hamburger menu on mobile, data tables become card lists on small screens. 12) Command palette — full screen on mobile instead of centered modal. 13) All buttons and tap targets minimum 44px height. 14) No horizontal overflow on any page. 15) Add touch-friendly swipe gestures on testimonials carousel and photo gallery lightbox. Use Tailwind responsive prefixes (sm:, md:, lg:) consistently and test that no component breaks between breakpoints.
 ---
 
@@ -131,6 +131,19 @@ Read all CLAUDE.md files. Do a full mobile optimization pass across the entire p
 ### G.1 — Rate Limiting
 
 >Read CLAUDE.md and /app/CLAUDE.md before starting Install @upstash/ratelimit and @upstash/redis. Create a rate limiter utility in lib/rate-limit.ts. Apply rate limiting to: POST /api/contact (5 per hour per IP), POST /api/newsletter (3 per hour per IP), POST /api/reactions (30 per hour per IP), POST /api/views (60 per hour per IP). Return 429 status with a friendly message when rate limited. Add UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN to env example.
+  Do manually(later):
+	Environment variables added to .env
+
+  UPSTASH_REDIS_REST_URL=
+  UPSTASH_REDIS_REST_TOKEN=
+
+  Setup
+
+  1. Create a free Redis database at https://upstash.com
+  2. Copy the REST URL and token
+  3. Add to Vercel environment variables (or .env)
+  4. Rate limiting activates automatically — without Upstash
+  configured, all requests pass through
 
 ### G.2 — Database Indexes
 
@@ -143,8 +156,23 @@ Read all CLAUDE.md files. Do a full mobile optimization pass across the entire p
 ### G.4 — Error Monitoring
 
 >Read CLAUDE.md and /app/CLAUDE.md before starting Install @sentry/nextjs. Run the Sentry wizard setup or manually configure sentry.client.config.ts, sentry.server.config.ts, and sentry.edge.config.ts. Add SENTRY_DSN to env. Wrap the root error.tsx and global-error.tsx to report to Sentry. Add Sentry to next.config via withSentryConfig.
+ Do manually later:
+ Environment variables added to .env
 
-### G.5 — Caching Strategy
+  NEXT_PUBLIC_SENTRY_DSN=
+  SENTRY_ORG=
+  SENTRY_PROJECT=
+
+  Setup
+
+  1. Create a project at https://sentry.io
+  2. Copy the DSN → set NEXT_PUBLIC_SENTRY_DSN
+  3. Set SENTRY_ORG and SENTRY_PROJECT for source map uploads
+  4. Add all 3 to Vercel environment variables
+  5. Sentry auto-activates — without a DSN, everything is
+  disabled (no performance impact)
+
+### G.5 — Caching Strategy <<<< 2:14 April 05, 2026
 
 >Read CLAUDE.md and /app/CLAUDE.md before starting Audit all data fetching across the project and apply this caching strategy: site_settings fetches use revalidateTag('settings') with a 1 hour revalidate. Blog posts, case studies, services, testimonials use revalidateTag('content') with 30 min revalidate. Admin pages use no-store. All admin server actions that modify content call revalidateTag('content'). All settings server actions call revalidateTag('settings'). Update the /api/revalidate route to accept both path and tag parameters.
 

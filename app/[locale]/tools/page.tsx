@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import dynamic from "next/dynamic";
 import { fetchAllSettings } from "@/lib/supabase/settings";
 import { siteMetadata } from "@/lib/metadata";
@@ -29,7 +30,10 @@ const RoiCalculator = dynamic(
   { loading: CalcSkeleton }
 );
 
-export default async function ToolsPage() {
+export default async function ToolsPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations("Tools");
   const settings = await fetchAllSettings();
   if (!settings.page_visibility.tools) notFound();
 
@@ -38,14 +42,13 @@ export default async function ToolsPage() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="max-w-2xl">
           <p className="text-sm font-semibold uppercase tracking-wider text-accent">
-            Tools
+            {t("label")}
           </p>
           <h1 className="mt-2 font-heading text-4xl font-bold tracking-tight sm:text-5xl">
-            Financial Calculators
+            {t("heading")}
           </h1>
           <p className="mt-4 text-lg text-muted-foreground">
-            Interactive tools to model investments, plan retirement, and
-            evaluate financial decisions.
+            {t("description")}
           </p>
         </div>
 

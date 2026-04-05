@@ -1,34 +1,40 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { Menu, X, TrendingUp } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { LocaleSwitcher } from "@/components/locale-switcher";
 import { TickerBar } from "@/components/ticker-bar";
 import { useSettings } from "@/lib/settings-provider";
 import { cn } from "@/lib/utils";
 import type { PageVisibility } from "@/types/settings";
 
-const ALL_NAV_LINKS: { label: string; href: string; key: keyof PageVisibility | null }[] = [
-  { label: "Home", href: "/", key: null },
-  { label: "About", href: "/about", key: "about" },
-  { label: "Services", href: "/services", key: "services" },
-  { label: "Portfolio", href: "/portfolio", key: "portfolio" },
-  { label: "Blog", href: "/blog", key: "blog" },
-  { label: "Insights", href: "/insights", key: "market_insights" },
-  { label: "Resources", href: "/resources", key: "resources" },
-  { label: "Tools", href: "/tools", key: "tools" },
-  { label: "Contact", href: "/contact", key: "contact" },
+const NAV_KEYS: { tKey: string; href: string; visKey: keyof PageVisibility | null }[] = [
+  { tKey: "home", href: "/", visKey: null },
+  { tKey: "about", href: "/about", visKey: "about" },
+  { tKey: "services", href: "/services", visKey: "services" },
+  { tKey: "portfolio", href: "/portfolio", visKey: "portfolio" },
+  { tKey: "blog", href: "/blog", visKey: "blog" },
+  { tKey: "insights", href: "/insights", visKey: "market_insights" },
+  { tKey: "resources", href: "/resources", visKey: "resources" },
+  { tKey: "tools", href: "/tools", visKey: "tools" },
+  { tKey: "contact", href: "/contact", visKey: "contact" },
 ];
 
 export function Header() {
+  const t = useTranslations("Nav");
   const { page_visibility, section_visibility, site_identity } = useSettings();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
   const navLinks = useMemo(
-    () => ALL_NAV_LINKS.filter((link) => link.key === null || page_visibility[link.key]),
-    [page_visibility]
+    () =>
+      NAV_KEYS
+        .filter((link) => link.visKey === null || page_visibility[link.visKey])
+        .map((link) => ({ label: t(link.tKey), href: link.href })),
+    [page_visibility, t]
   );
 
   useEffect(() => {
@@ -80,11 +86,12 @@ export function Header() {
 
           {/* Right actions */}
           <div className="flex items-center gap-2">
+            <LocaleSwitcher />
             <ThemeToggle />
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
               className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border text-foreground transition-colors hover:bg-muted md:hidden"
-              aria-label={mobileOpen ? "Close menu" : "Open menu"}
+              aria-label={mobileOpen ? t("closeMenu") : t("openMenu")}
               aria-expanded={mobileOpen}
             >
               {mobileOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
@@ -112,11 +119,11 @@ export function Header() {
         aria-label="Mobile navigation"
       >
         <div className="flex h-16 items-center justify-between border-b border-border px-4">
-          <span className="font-heading text-lg font-bold tracking-tight">Menu</span>
+          <span className="font-heading text-lg font-bold tracking-tight">{t("menu")}</span>
           <button
             onClick={() => setMobileOpen(false)}
             className="inline-flex h-9 w-9 items-center justify-center rounded-md text-foreground transition-colors hover:bg-muted"
-            aria-label="Close menu"
+            aria-label={t("closeMenu")}
           >
             <X className="h-4 w-4" />
           </button>

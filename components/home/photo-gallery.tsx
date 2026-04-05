@@ -4,6 +4,7 @@ import { useMemo, useRef, useState } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface Photo {
   id: string;
@@ -18,6 +19,7 @@ export function PhotoGallery({ photos }: { photos: Photo[] }) {
   const inView = useInView(ref, { once: true, margin: "-80px" });
   const [filter, setFilter] = useState<string | null>(null);
   const [lightbox, setLightbox] = useState<number | null>(null);
+  const t = useTranslations("Home");
 
   const categories = useMemo(
     () => [...new Set(photos.map((p) => p.category).filter(Boolean))] as string[],
@@ -42,10 +44,10 @@ export function PhotoGallery({ photos }: { photos: Photo[] }) {
           transition={{ duration: 0.5 }}
         >
           <p className="text-sm font-semibold uppercase tracking-wider text-accent">
-            Gallery
+            {t("galleryLabel")}
           </p>
           <h2 className="mt-2 font-heading text-3xl font-bold tracking-tight sm:text-4xl">
-            Photo Gallery
+            {t("galleryHeading")}
           </h2>
         </motion.div>
 
@@ -58,7 +60,7 @@ export function PhotoGallery({ photos }: { photos: Photo[] }) {
                 filter === null ? "bg-accent text-white" : "bg-muted text-muted-foreground hover:text-foreground"
               }`}
             >
-              All
+              {t("allFilter")}
             </button>
             {categories.map((cat) => (
               <button
@@ -119,18 +121,18 @@ export function PhotoGallery({ photos }: { photos: Photo[] }) {
               if (Math.abs(diff) > 50) { e.stopPropagation(); diff > 0 ? prev() : next(); }
             }}
           >
-            <button onClick={closeLightbox} className="absolute right-4 top-4 rounded-full bg-white/10 p-3 text-white hover:bg-white/20" aria-label="Close">
+            <button onClick={closeLightbox} className="absolute right-4 top-4 rounded-full bg-white/10 p-3 text-white hover:bg-white/20" aria-label={t("close")}>
               <X className="h-5 w-5" />
             </button>
 
             {lightbox > 0 && (
-              <button onClick={(e) => { e.stopPropagation(); prev(); }} className="absolute left-4 rounded-full bg-white/10 p-3 text-white hover:bg-white/20" aria-label="Previous">
+              <button onClick={(e) => { e.stopPropagation(); prev(); }} className="absolute left-4 rounded-full bg-white/10 p-3 text-white hover:bg-white/20" aria-label={t("previous")}>
                 <ChevronLeft className="h-5 w-5" />
               </button>
             )}
 
             {lightbox < filtered.length - 1 && (
-              <button onClick={(e) => { e.stopPropagation(); next(); }} className="absolute right-4 rounded-full bg-white/10 p-3 text-white hover:bg-white/20 top-1/2 -translate-y-1/2" aria-label="Next">
+              <button onClick={(e) => { e.stopPropagation(); next(); }} className="absolute right-4 rounded-full bg-white/10 p-3 text-white hover:bg-white/20 top-1/2 -translate-y-1/2" aria-label={t("next")}>
                 <ChevronRight className="h-5 w-5" />
               </button>
             )}

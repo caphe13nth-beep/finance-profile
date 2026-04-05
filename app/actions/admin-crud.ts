@@ -1,8 +1,7 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidateTag } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { TABLE_PATHS } from "@/lib/revalidate";
 
 type TableName =
   | "profiles"
@@ -24,22 +23,18 @@ function admin() {
   return createAdminClient();
 }
 
-function revalidateRelated(table: TableName, adminPath: string) {
-  revalidatePath(adminPath);
-  const publicPaths = TABLE_PATHS[table] ?? [];
-  for (const p of publicPaths) {
-    revalidatePath(p);
-  }
+function revalidateContent() {
+  revalidateTag("content", { expire: 0 });
 }
 
 export async function adminCreate(
   table: TableName,
   data: Record<string, unknown>,
-  revalidate: string
+  _revalidate: string
 ) {
   const { error } = await admin().from(table).insert(data);
   if (error) return { error: error.message };
-  revalidateRelated(table, revalidate);
+  revalidateContent();
   return { error: null };
 }
 
@@ -47,22 +42,22 @@ export async function adminUpdate(
   table: TableName,
   id: string,
   data: Record<string, unknown>,
-  revalidate: string
+  _revalidate: string
 ) {
   const { error } = await admin().from(table).update(data).eq("id", id);
   if (error) return { error: error.message };
-  revalidateRelated(table, revalidate);
+  revalidateContent();
   return { error: null };
 }
 
 export async function adminDeleteRow(
   table: TableName,
   id: string,
-  revalidate: string
+  _revalidate: string
 ) {
   const { error } = await admin().from(table).delete().eq("id", id);
   if (error) return { error: error.message };
-  revalidateRelated(table, revalidate);
+  revalidateContent();
   return { error: null };
 }
 
@@ -71,26 +66,26 @@ export async function adminToggleField(
   id: string,
   field: string,
   value: boolean,
-  revalidate: string
+  _revalidate: string
 ) {
   const { error } = await admin()
     .from(table)
     .update({ [field]: value })
     .eq("id", id);
   if (error) return { error: error.message };
-  revalidateRelated(table, revalidate);
+  revalidateContent();
   return { error: null };
 }
 
 export async function adminReorder(
   table: TableName,
   items: { id: string; sort_order: number }[],
-  revalidate: string
+  _revalidate: string
 ) {
   const db = admin();
   for (const item of items) {
     await db.from(table).update({ sort_order: item.sort_order }).eq("id", item.id);
   }
-  revalidateRelated(table, revalidate);
+  revalidateContent();
   return { error: null };
 }

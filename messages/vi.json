@@ -1,0 +1,157 @@
+{
+  "Nav": {
+    "home": "Trang chủ",
+    "about": "Giới thiệu",
+    "services": "Dịch vụ",
+    "portfolio": "Danh mục",
+    "blog": "Bài viết",
+    "insights": "Phân tích",
+    "resources": "Tài liệu",
+    "tools": "Công cụ",
+    "contact": "Liên hệ",
+    "menu": "Menu",
+    "openMenu": "Mở menu",
+    "closeMenu": "Đóng menu",
+    "skipToContent": "Chuyển đến nội dung"
+  },
+  "Footer": {
+    "navigation": "Điều hướng",
+    "connect": "Kết nối",
+    "newsletter": "Bản tin",
+    "newsletterDescription": "Nhận phân tích thị trường hàng tuần qua email.",
+    "emailPlaceholder": "ban@email.com",
+    "join": "Đăng ký",
+    "subscribedSuccess": "Đăng ký thành công!",
+    "subscribedError": "Đã xảy ra lỗi. Vui lòng thử lại.",
+    "comingSoon": "Sắp ra mắt."
+  },
+  "Home": {
+    "personalIntroLabel": "Xin chào, tôi là",
+    "nowLabel": "Hiện tại",
+    "nowHeading": "Tôi đang làm gì",
+    "lastUpdated": "Cập nhật lần cuối {date}",
+    "careerLabel": "Sự nghiệp",
+    "careerHeading": "Hành trình nghề nghiệp",
+    "timelineEmpty": "Nội dung sắp được cập nhật.",
+    "testimonialsLabel": "Nhận xét",
+    "testimonialsHeading": "Phản hồi khách hàng",
+    "previousTestimonial": "Nhận xét trước",
+    "nextTestimonial": "Nhận xét tiếp",
+    "goToTestimonial": "Đến nhận xét {number}",
+    "galleryLabel": "Thư viện ảnh",
+    "galleryHeading": "Bộ sưu tập ảnh",
+    "allFilter": "Tất cả",
+    "close": "Đóng",
+    "previous": "Trước",
+    "next": "Tiếp",
+    "hobbiesLabel": "Ngoài công việc",
+    "hobbiesHeading": "Sở thích & Đam mê",
+    "projectsLabel": "Dự án cá nhân",
+    "projectsHeading": "Những gì tôi đã xây dựng",
+    "featured": "Nổi bật",
+    "viewProject": "Xem dự án",
+    "insightsLabel": "Bài viết",
+    "insightsHeading": "Bài viết mới nhất",
+    "viewAllInsights": "Xem tất cả bài viết",
+    "noInsights": "Chưa có bài viết nào. Hãy quay lại sau.",
+    "readArticle": "Đọc bài viết",
+    "minRead": "{min} phút",
+    "caseStudyLabel": "Nghiên cứu điển hình",
+    "challenge": "Thách thức",
+    "strategy": "Chiến lược",
+    "result": "Kết quả",
+    "keyMetrics": "Chỉ số chính",
+    "viewAllCaseStudies": "Xem tất cả nghiên cứu"
+  },
+  "Newsletter": {
+    "heading": "Đón đầu thị trường",
+    "description": "Nhận phân tích hàng tuần về xu hướng thị trường, chiến lược đầu tư và ý tưởng đầu tư thiết thực.",
+    "subscribed": "Bạn đã đăng ký! Kiểm tra hộp thư.",
+    "emailPlaceholder": "Nhập email của bạn",
+    "subscribe": "Đăng ký",
+    "subscribing": "Đang đăng ký...",
+    "noSpam": "Không spam. Hủy đăng ký bất cứ lúc nào."
+  },
+  "Blog": {
+    "label": "Bài viết",
+    "heading": "Blog",
+    "description": "Phân tích thị trường, chiến lược đầu tư và góc nhìn tài chính.",
+    "searchPlaceholder": "Tìm kiếm bài viết...",
+    "all": "Tất cả",
+    "noResults": "Không tìm thấy bài viết phù hợp.",
+    "previousPage": "Trang trước",
+    "nextPage": "Trang sau",
+    "relatedArticles": "Bài viết liên quan"
+  },
+  "Services": {
+    "label": "Dịch vụ",
+    "heading": "Dịch vụ",
+    "description": "Giải pháp tài chính phù hợp giúp bạn tăng trưởng, bảo vệ và tối ưu hóa tài sản.",
+    "empty": "Dịch vụ sắp ra mắt. Vui lòng quay lại sau."
+  },
+  "Portfolio": {
+    "label": "Danh mục",
+    "heading": "Nghiên cứu điển hình",
+    "description": "Kết quả thực tế trong nhiều ngành và điều kiện thị trường khác nhau.",
+    "empty": "Nghiên cứu điển hình sắp ra mắt."
+  },
+  "Insights": {
+    "label": "Nghiên cứu",
+    "heading": "Phân tích thị trường",
+    "description": "Phân tích chuyên sâu, luận điểm đầu tư và nghiên cứu có thể áp dụng trên nhiều loại tài sản và lĩnh vực."
+  },
+  "Resources": {
+    "label": "Tài liệu",
+    "heading": "Tải xuống & Hướng dẫn",
+    "description": "Tài liệu miễn phí, mẫu và hướng dẫn giúp bạn điều hướng thị trường và tối ưu hóa chiến lược tài chính."
+  },
+  "Tools": {
+    "label": "Công cụ",
+    "heading": "Máy tính tài chính",
+    "description": "Công cụ tương tác để mô phỏng đầu tư, lập kế hoạch nghỉ hưu và đánh giá quyết định tài chính."
+  },
+  "Contact": {
+    "label": "Liên hệ",
+    "heading": "Hãy kết nối",
+    "description": "Có câu hỏi hoặc muốn hợp tác? Gửi tin nhắn cho tôi và tôi sẽ phản hồi trong vòng một ngày làm việc.",
+    "getInTouch": "Liên hệ",
+    "email": "Email",
+    "location": "Địa điểm",
+    "social": "Mạng xã hội",
+    "faqHeading": "Câu hỏi thường gặp"
+  },
+  "ContactForm": {
+    "name": "Họ tên",
+    "namePlaceholder": "Họ và tên đầy đủ",
+    "nameRequired": "Vui lòng nhập họ tên",
+    "email": "Email",
+    "emailPlaceholder": "ban@email.com",
+    "emailInvalid": "Vui lòng nhập email hợp lệ",
+    "subject": "Chủ đề",
+    "subjectPlaceholder": "Bạn muốn trao đổi về vấn đề gì?",
+    "message": "Tin nhắn",
+    "messagePlaceholder": "Cho tôi biết nhu cầu của bạn...",
+    "messageMin": "Tin nhắn phải có ít nhất 10 ký tự",
+    "required": "*",
+    "send": "Gửi tin nhắn",
+    "sending": "Đang gửi...",
+    "successHeading": "Đã gửi tin nhắn!",
+    "successDescription": "Cảm ơn bạn đã liên hệ. Tôi sẽ phản hồi sớm nhất có thể.",
+    "sentToast": "Gửi tin nhắn thành công!"
+  },
+  "NotFound": {
+    "code": "404",
+    "heading": "Không tìm thấy trang",
+    "description": "Trang bạn tìm kiếm không tồn tại hoặc đã được di chuyển.",
+    "backHome": "Về trang chủ"
+  },
+  "About": {
+    "label": "Giới thiệu",
+    "heading": "Giới thiệu"
+  },
+  "LocaleSwitcher": {
+    "en": "English",
+    "vi": "Tiếng Việt",
+    "label": "Ngôn ngữ"
+  }
+}

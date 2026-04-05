@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
+import { setRequestLocale } from "next-intl/server";
 import { MDXRemote } from "next-mdx-remote/rsc";
+import { SHIMMER_16_9 } from "@/lib/shimmer";
 import { ArrowLeft, Clock, Calendar } from "lucide-react";
-import { getPostBySlug, getRelatedPosts, getProfile } from "@/lib/supabase/queries";
+import { getPostBySlug, getRelatedPosts, getProfile, getPostTranslations } from "@/lib/supabase/queries";
+import { TranslationSwitcher } from "@/components/blog/translation-switcher";
 import { mdxComponents } from "@/components/blog/mdx-components";
 import { ReadingProgress } from "@/components/blog/reading-progress";
 import { TableOfContents, MobileToc } from "@/components/blog/table-of-contents";
@@ -16,7 +19,7 @@ import { BlogReactions } from "@/components/blog/blog-reactions";
 import { ViewTracker } from "@/components/blog/view-tracker";
 import { GiscusComments } from "@/components/blog/giscus-comments";
 
-type Props = { params: Promise<{ slug: string }> };
+type Props = { params: Promise<{ locale: string; slug: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
@@ -35,7 +38,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function BlogPostPage({ params }: Props) {
-  const { slug } = await params;
+  const { locale, slug } = await params;
+  setRequestLocale(locale);
 
   const [{ data: post }, { data: profile }] = await Promise.all([
     getPostBySlug(slug),
@@ -45,11 +49,10 @@ export default async function BlogPostPage({ params }: Props) {
   if (!post) notFound();
 
   // Related posts: same category + overlapping tags, scored and ranked
-  const { data: related } = await getRelatedPosts(
-    post.id,
-    post.category,
-    post.tags
-  );
+  const [{ data: related }, { data: translations }] = await Promise.all([
+    getRelatedPosts(post.id, post.category, post.tags),
+    getPostTranslations(post.id, post.translation_of ?? null),
+  ]);
 
   const date = post.published_at
     ? new Date(post.published_at).toLocaleDateString("en-US", {
@@ -88,6 +91,13 @@ export default async function BlogPostPage({ params }: Props) {
             <ArrowLeft className="h-4 w-4" />
             Back to Blog
           </Link>
+
+          {/* Translation switcher */}
+          {translations && translations.length > 1 && (
+            <div className="mt-4">
+              <TranslationSwitcher translations={translations} />
+            </div>
+          )}
 
           {/* Header */}
           <header className="mt-6 max-w-3xl">
@@ -133,6 +143,8 @@ export default async function BlogPostPage({ params }: Props) {
                 sizes="(max-width: 768px) 100vw, 1200px"
                 className="object-cover"
                 priority
+                placeholder="blur"
+                blurDataURL={SHIMMER_16_9}
               />
             </div>
           )}

@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { getCaseStudies } from "@/lib/supabase/queries";
 import { fetchAllSettings } from "@/lib/supabase/settings";
 import { PortfolioKpi } from "@/components/portfolio/portfolio-kpi";
@@ -11,9 +12,10 @@ export const metadata = siteMetadata({
   path: "/portfolio",
 });
 
-export const revalidate = 3600;
-
-export default async function PortfolioPage() {
+export default async function PortfolioPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations("Portfolio");
   const settings = await fetchAllSettings();
   if (!settings.page_visibility.portfolio) notFound();
 
@@ -43,13 +45,13 @@ export default async function PortfolioPage() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="max-w-2xl">
           <p className="text-sm font-semibold uppercase tracking-wider text-accent">
-            Portfolio
+            {t("label")}
           </p>
           <h1 className="mt-2 font-heading text-4xl font-bold tracking-tight sm:text-5xl">
-            Case Studies
+            {t("heading")}
           </h1>
           <p className="mt-4 text-lg text-muted-foreground">
-            Real-world results across industries and market conditions.
+            {t("description")}
           </p>
         </div>
 
@@ -69,7 +71,7 @@ export default async function PortfolioPage() {
           </div>
         ) : (
           <p className="mt-12 text-muted-foreground">
-            Case studies coming soon.
+            {t("empty")}
           </p>
         )}
       </div>

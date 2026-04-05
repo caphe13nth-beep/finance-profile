@@ -10,6 +10,7 @@ import {
   Tooltip,
 } from "recharts";
 import Image from "next/image";
+import { SHIMMER_16_9 } from "@/lib/shimmer";
 import { X, ExternalLink } from "lucide-react";
 
 interface CaseStudy {
@@ -61,6 +62,8 @@ function CaseStudyCard({
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             className="object-cover transition-transform duration-500 group-hover:scale-105"
+            placeholder="blur"
+            blurDataURL={SHIMMER_16_9}
           />
         </div>
       ) : (

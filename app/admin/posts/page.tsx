@@ -23,6 +23,8 @@ import {
   Clock,
   Archive,
   FileEdit,
+  Languages,
+  Globe,
 } from "lucide-react";
 import { MdxEditor } from "@/components/admin/mdx-editor";
 import { ImageUpload } from "@/components/admin/image-upload";
@@ -46,6 +48,8 @@ interface Post {
   status: PostStatus;
   reading_time_min: number | null;
   created_at: string;
+  locale: string;
+  translation_of: string | null;
 }
 
 // ── Zod schema ─────────────────────────────────────
@@ -65,9 +69,17 @@ const postSchema = z.object({
   seo_description: z.string().optional(),
   status: z.enum(["draft", "scheduled", "published", "archived"]),
   scheduled_at: z.string().optional(),
+  locale: z.string().min(1),
+  translation_of: z.string().optional(),
 });
 
 type PostFormValues = z.infer<typeof postSchema>;
+
+// ── Locale config ─────────────────────────────────
+const LOCALES = [
+  { value: "en", label: "English", flag: "🇺🇸" },
+  { value: "vi", label: "Tiếng Việt", flag: "🇻🇳" },
+];
 
 // ── Styles ─────────────────────────────────────────
 const inputCls =
@@ -88,11 +100,13 @@ const STATUS_CONFIG: Record<PostStatus, { label: string; icon: typeof Eye; cls: 
 // ── Post form component ────────────────────────────
 function PostForm({
   defaultValues,
+  allPosts,
   onSubmit,
   onCancel,
   isPending,
 }: {
   defaultValues: Partial<Post> | null;
+  allPosts: Post[];
   onSubmit: (data: PostFormValues) => void;
   onCancel: () => void;
   isPending: boolean;
@@ -118,11 +132,20 @@ function PostForm({
       seo_description: defaultValues?.seo_description ?? "",
       status: defaultValues?.status ?? "draft",
       scheduled_at: defaultValues?.scheduled_at ? defaultValues.scheduled_at.slice(0, 16) : "",
+      locale: defaultValues?.locale ?? "en",
+      translation_of: defaultValues?.translation_of ?? "",
     },
   });
 
   const featuredImage = watch("featured_image") ?? "";
   const currentStatus = watch("status");
+  const currentLocale = watch("locale");
+
+  // Build list of posts that can be "translation_of" targets:
+  // Only posts with a different locale and that are not themselves translations
+  const translationTargets = allPosts.filter(
+    (p) => p.locale !== currentLocale && !p.translation_of
+  );
 
   // Auto-generate slug from title for new posts
   const titleValue = watch("title");
@@ -138,6 +161,32 @@ function PostForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      {/* Locale + Translation */}
+      <fieldset className="space-y-3 rounded-lg border border-border p-4">
+        <legend className="px-2 text-xs font-semibold text-muted-foreground">Language</legend>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className={labelCls}>Locale <span className="text-destructive">*</span></label>
+            <select {...register("locale")} className={inputCls}>
+              {LOCALES.map((l) => (
+                <option key={l.value} value={l.value}>{l.flag} {l.label}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className={labelCls}>Translation of</label>
+            <select {...register("translation_of")} className={inputCls}>
+              <option value="">— None (original post) —</option>
+              {translationTargets.map((p) => (
+                <option key={p.id} value={p.id}>
+                  [{p.locale.toUpperCase()}] {p.title}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </fieldset>
+
       <div>
         <label className={labelCls}>Title <span className="text-destructive">*</span></label>
         <input {...register("title")} className={inputCls} />
@@ -215,6 +264,7 @@ export default function AdminPostsPage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<PostStatus | "all">("all");
+  const [localeFilter, setLocaleFilter] = useState<string>("all");
   const [modal, setModal] = useState<{ open: boolean; post: Partial<Post> | null }>({ open: false, post: null });
   const [pending, startTransition] = useTransition();
 
@@ -229,6 +279,28 @@ export default function AdminPostsPage() {
   function openNew() { setModal({ open: true, post: {} }); }
   function openEdit(p: Post) { setModal({ open: true, post: { ...p } }); }
   function close() { setModal({ open: false, post: null }); }
+
+  function openTranslate(source: Post, targetLocale: string) {
+    // Pre-fill a new post from the source, but with the target locale and translation_of set
+    setModal({
+      open: true,
+      post: {
+        title: source.title,
+        slug: `${source.slug}-${targetLocale}`,
+        excerpt: source.excerpt,
+        featured_image: source.featured_image,
+        body: source.body,
+        category: source.category,
+        tags: source.tags,
+        reading_time_min: source.reading_time_min,
+        seo_title: source.seo_title,
+        seo_description: source.seo_description,
+        status: "draft" as PostStatus,
+        locale: targetLocale,
+        translation_of: source.translation_of ?? source.id,
+      },
+    });
+  }
 
   function handleFormSubmit(values: PostFormValues) {
     const p = modal.post;
@@ -251,6 +323,8 @@ export default function AdminPostsPage() {
         values.status === "published" && !p?.published_at
           ? new Date().toISOString()
           : p?.published_at ?? null,
+      locale: values.locale,
+      translation_of: values.translation_of || null,
     };
 
     startTransition(async () => {
@@ -275,6 +349,7 @@ export default function AdminPostsPage() {
   // Filter
   const filtered = posts.filter((p) => {
     if (statusFilter !== "all" && p.status !== statusFilter) return false;
+    if (localeFilter !== "all" && p.locale !== localeFilter) return false;
     if (search.trim()) {
       const q = search.toLowerCase();
       return p.title.toLowerCase().includes(q) || (p.category?.toLowerCase().includes(q) ?? false);
@@ -290,6 +365,19 @@ export default function AdminPostsPage() {
     archived: posts.filter((p) => p.status === "archived").length,
   };
 
+  // Determine which locales a post is missing translations for
+  function missingLocales(post: Post): string[] {
+    // Only offer translate for original posts (not translations themselves)
+    if (post.translation_of) return [];
+    const existingLocales = new Set(
+      posts
+        .filter((p) => p.translation_of === post.id)
+        .map((p) => p.locale)
+    );
+    existingLocales.add(post.locale);
+    return LOCALES.map((l) => l.value).filter((l) => !existingLocales.has(l));
+  }
+
   return (
     <AdminShell
       title="Blog Posts"
@@ -302,9 +390,22 @@ export default function AdminPostsPage() {
     >
       {/* Filters */}
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="relative max-w-sm flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Filter posts..." className="h-9 w-full rounded-lg border border-input bg-background pl-9 pr-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+        <div className="flex items-center gap-2 flex-1">
+          <div className="relative max-w-sm flex-1">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Filter posts..." className="h-9 w-full rounded-lg border border-input bg-background pl-9 pr-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+          </div>
+          {/* Locale filter */}
+          <select
+            value={localeFilter}
+            onChange={(e) => setLocaleFilter(e.target.value)}
+            className="h-9 rounded-lg border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+          >
+            <option value="all">All languages</option>
+            {LOCALES.map((l) => (
+              <option key={l.value} value={l.value}>{l.flag} {l.label}</option>
+            ))}
+          </select>
         </div>
         <div className="flex gap-1">
           {(["all", "draft", "scheduled", "published", "archived"] as const).map((s) => (
@@ -326,6 +427,7 @@ export default function AdminPostsPage() {
             <tr className="border-b border-border bg-muted/50 text-left text-xs font-medium text-muted-foreground">
               <th className="w-10 px-4 py-3"><ImageIcon className="h-4 w-4 text-muted-foreground/50" /></th>
               <th className="px-4 py-3">Title</th>
+              <th className="px-4 py-3">Lang</th>
               <th className="px-4 py-3">Category</th>
               <th className="px-4 py-3">Status</th>
               <th className="px-4 py-3">Date</th>
@@ -336,6 +438,8 @@ export default function AdminPostsPage() {
             {filtered.map((p) => {
               const sc = STATUS_CONFIG[p.status] ?? STATUS_CONFIG.draft;
               const StatusIcon = sc.icon;
+              const localeInfo = LOCALES.find((l) => l.value === p.locale);
+              const missing = missingLocales(p);
               return (
                 <tr key={p.id} className="border-b border-border last:border-0 hover:bg-muted/30">
                   <td className="px-4 py-2">
@@ -347,7 +451,19 @@ export default function AdminPostsPage() {
                   </td>
                   <td className="px-4 py-3">
                     <p className="font-medium">{p.title}</p>
-                    <p className="text-xs text-muted-foreground">/{p.slug}</p>
+                    <p className="text-xs text-muted-foreground">
+                      /{p.slug}
+                      {p.translation_of && (
+                        <span className="ml-1.5 text-accent">
+                          (translation)
+                        </span>
+                      )}
+                    </p>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-xs font-medium">
+                      {localeInfo?.flag} {p.locale.toUpperCase()}
+                    </span>
                   </td>
                   <td className="px-4 py-3">
                     {p.category ? <span className="rounded-full bg-muted px-2 py-0.5 text-xs">{p.category}</span> : <span className="text-muted-foreground">—</span>}
@@ -368,6 +484,32 @@ export default function AdminPostsPage() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex justify-end gap-1">
+                      {/* Translate action — only for original posts with missing locales */}
+                      {missing.length > 0 && (
+                        <div className="relative group">
+                          <button
+                            className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+                            title="Translate"
+                          >
+                            <Languages className="h-4 w-4" />
+                          </button>
+                          <div className="absolute right-0 top-full z-10 mt-1 hidden min-w-[130px] rounded-lg border border-border bg-popover shadow-lg group-hover:block">
+                            {missing.map((ml) => {
+                              const li = LOCALES.find((l) => l.value === ml);
+                              return (
+                                <button
+                                  key={ml}
+                                  onClick={() => openTranslate(p, ml)}
+                                  className="flex w-full items-center gap-2 px-3 py-2 text-sm text-popover-foreground hover:bg-muted"
+                                >
+                                  <span>{li?.flag}</span>
+                                  {li?.label}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
                       {p.status === "draft" && (
                         <button onClick={() => handleQuickStatus(p.id, "published")} className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground" title="Publish">
                           <Eye className="h-4 w-4" />
@@ -386,17 +528,18 @@ export default function AdminPostsPage() {
               );
             })}
             {filtered.length === 0 && (
-              <tr><td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">{search || statusFilter !== "all" ? "No posts match your filter." : "No posts yet."}</td></tr>
+              <tr><td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">{search || statusFilter !== "all" || localeFilter !== "all" ? "No posts match your filter." : "No posts yet."}</td></tr>
             )}
           </tbody>
         </table>
       </div>
 
-      <FormModal title={modal.post?.id ? "Edit Post" : "New Post"} open={modal.open} onClose={close}>
+      <FormModal title={modal.post?.id ? "Edit Post" : modal.post?.translation_of ? "Translate Post" : "New Post"} open={modal.open} onClose={close}>
         {modal.open && (
           <PostForm
-            key={modal.post?.id ?? "new"}
+            key={modal.post?.id ?? `new-${modal.post?.locale}-${modal.post?.translation_of}`}
             defaultValues={modal.post}
+            allPosts={posts}
             onSubmit={handleFormSubmit}
             onCancel={close}
             isPending={pending}

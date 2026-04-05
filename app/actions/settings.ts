@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidateTag } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function updateSetting(key: string, value: unknown) {
@@ -12,7 +12,7 @@ export async function updateSetting(key: string, value: unknown) {
 
   if (error) return { error: error.message };
 
-  // Revalidate all public pages since settings affect layout/nav
-  revalidatePath("/", "layout");
+  // Invalidate all cached settings across the site
+  revalidateTag("settings", { expire: 0 });
   return { error: null };
 }

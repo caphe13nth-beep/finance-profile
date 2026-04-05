@@ -4,16 +4,19 @@ import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { useSettings } from "@/lib/settings-provider";
 import { Clock } from "lucide-react";
+import { useTranslations, useLocale } from "next-intl";
 
 export function NowSection() {
   const { now_section } = useSettings();
   const ref = useRef<HTMLElement>(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
+  const t = useTranslations("Home");
+  const locale = useLocale();
 
   if (!now_section.items.length) return null;
 
   const lastUpdated = now_section.last_updated
-    ? new Date(now_section.last_updated).toLocaleDateString("en-US", {
+    ? new Date(now_section.last_updated).toLocaleDateString(locale, {
         month: "long",
         day: "numeric",
         year: "numeric",
@@ -29,15 +32,15 @@ export function NowSection() {
           transition={{ duration: 0.5 }}
         >
           <p className="text-sm font-semibold uppercase tracking-wider text-accent">
-            Now
+            {t("nowLabel")}
           </p>
           <h2 className="mt-2 font-heading text-3xl font-bold tracking-tight sm:text-4xl">
-            What I'm Doing Now
+            {t("nowHeading")}
           </h2>
           {lastUpdated && (
             <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
               <Clock className="h-3.5 w-3.5" />
-              Last updated {lastUpdated}
+              {t("lastUpdated", { date: lastUpdated })}
             </p>
           )}
         </motion.div>

@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { TrendingUp } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useToast } from "@/components/toast";
@@ -43,24 +44,29 @@ const LABEL_MAP: Record<string, string> = {
   tiktok: "TikTok", facebook: "Facebook",
 };
 
-const ALL_QUICK_LINKS: { label: string; href: string; key: keyof PageVisibility | null }[] = [
-  { label: "Home", href: "/", key: null },
-  { label: "About", href: "/about", key: "about" },
-  { label: "Services", href: "/services", key: "services" },
-  { label: "Portfolio", href: "/portfolio", key: "portfolio" },
-  { label: "Blog", href: "/blog", key: "blog" },
-  { label: "Contact", href: "/contact", key: "contact" },
+const QUICK_LINK_KEYS: { tKey: string; href: string; visKey: keyof PageVisibility | null }[] = [
+  { tKey: "home", href: "/", visKey: null },
+  { tKey: "about", href: "/about", visKey: "about" },
+  { tKey: "services", href: "/services", visKey: "services" },
+  { tKey: "portfolio", href: "/portfolio", visKey: "portfolio" },
+  { tKey: "blog", href: "/blog", visKey: "blog" },
+  { tKey: "contact", href: "/contact", visKey: "contact" },
 ];
 
 export function Footer() {
+  const t = useTranslations("Footer");
+  const tNav = useTranslations("Nav");
   const { site_identity, social_links, page_visibility } = useSettings();
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const { toast } = useToast();
 
   const quickLinks = useMemo(
-    () => ALL_QUICK_LINKS.filter((l) => l.key === null || page_visibility[l.key]),
-    [page_visibility]
+    () =>
+      QUICK_LINK_KEYS
+        .filter((l) => l.visKey === null || page_visibility[l.visKey])
+        .map((l) => ({ label: tNav(l.tKey), href: l.href })),
+    [page_visibility, tNav]
   );
 
   const activeSocials = useMemo(
@@ -86,11 +92,11 @@ export function Footer() {
       .insert({ email: email.trim() });
     if (error) {
       setStatus("error");
-      toast("Something went wrong. Try again.", "error");
+      toast(t("subscribedError"), "error");
     } else {
       setStatus("success");
       setEmail("");
-      toast("Subscribed successfully!", "success");
+      toast(t("subscribedSuccess"), "success");
     }
     setTimeout(() => setStatus("idle"), 4000);
   }
@@ -117,7 +123,7 @@ export function Footer() {
           {/* Quick links */}
           <div>
             <h3 className="font-heading text-sm font-semibold uppercase tracking-wider text-foreground">
-              Navigation
+              {t("navigation")}
             </h3>
             <ul className="mt-4 space-y-2">
               {quickLinks.map(({ label, href }) => (
@@ -133,7 +139,7 @@ export function Footer() {
           {/* Social */}
           <div>
             <h3 className="font-heading text-sm font-semibold uppercase tracking-wider text-foreground">
-              Connect
+              {t("connect")}
             </h3>
             {activeSocials.length > 0 ? (
               <ul className="mt-4 space-y-2">
@@ -152,17 +158,17 @@ export function Footer() {
                 ))}
               </ul>
             ) : (
-              <p className="mt-4 text-sm text-muted-foreground">Coming soon.</p>
+              <p className="mt-4 text-sm text-muted-foreground">{t("comingSoon")}</p>
             )}
           </div>
 
           {/* Newsletter */}
           <div>
             <h3 className="font-heading text-sm font-semibold uppercase tracking-wider text-foreground">
-              Newsletter
+              {t("newsletter")}
             </h3>
             <p className="mt-4 text-sm text-muted-foreground">
-              Weekly market insights delivered to your inbox.
+              {t("newsletterDescription")}
             </p>
             <form onSubmit={handleSubscribe} className="mt-3 flex gap-2">
               <input
@@ -170,7 +176,7 @@ export function Footer() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@email.com"
+                placeholder={t("emailPlaceholder")}
                 className="h-9 flex-1 rounded-md border border-input bg-background px-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
               />
               <button
@@ -178,11 +184,11 @@ export function Footer() {
                 disabled={status === "loading"}
                 className="h-9 shrink-0 rounded-md bg-accent px-3 text-sm font-medium text-white transition-colors hover:bg-accent/80 disabled:opacity-50"
               >
-                {status === "loading" ? "..." : "Join"}
+                {status === "loading" ? "..." : t("join")}
               </button>
             </form>
-            {status === "success" && <p className="mt-2 text-xs text-accent">Subscribed successfully!</p>}
-            {status === "error" && <p className="mt-2 text-xs text-destructive">Something went wrong. Try again.</p>}
+            {status === "success" && <p className="mt-2 text-xs text-accent">{t("subscribedSuccess")}</p>}
+            {status === "error" && <p className="mt-2 text-xs text-destructive">{t("subscribedError")}</p>}
           </div>
         </div>
 

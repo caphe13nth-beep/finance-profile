@@ -2,9 +2,11 @@
 
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import Image from "next/image";
 import { ArrowRight, Clock } from "lucide-react";
+import { SHIMMER_16_9 } from "@/lib/shimmer";
+import { useTranslations, useLocale } from "next-intl";
 
 interface BlogPost {
   id: string;
@@ -20,9 +22,11 @@ interface BlogPost {
 function InsightCard({ post, index }: { post: BlogPost; index: number }) {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-60px" });
+  const t = useTranslations("Home");
+  const locale = useLocale();
 
   const date = post.published_at
-    ? new Date(post.published_at).toLocaleDateString("en-US", {
+    ? new Date(post.published_at).toLocaleDateString(locale, {
         month: "short",
         day: "numeric",
         year: "numeric",
@@ -49,6 +53,8 @@ function InsightCard({ post, index }: { post: BlogPost; index: number }) {
               fill
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               className="object-cover transition-transform duration-500 group-hover:scale-105"
+              placeholder="blur"
+              blurDataURL={SHIMMER_16_9}
             />
           ) : (
             <div className="flex h-full items-center justify-center text-muted-foreground/30">
@@ -60,7 +66,7 @@ function InsightCard({ post, index }: { post: BlogPost; index: number }) {
 
           {/* Hover overlay */}
           <div className="absolute inset-0 flex items-center justify-center bg-accent/80 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-            <span className="text-sm font-semibold text-white">Read Article</span>
+            <span className="text-sm font-semibold text-white">{t("readArticle")}</span>
           </div>
         </div>
 
@@ -76,7 +82,7 @@ function InsightCard({ post, index }: { post: BlogPost; index: number }) {
             {post.reading_time_min && (
               <span className="flex items-center gap-1">
                 <Clock className="h-3 w-3" />
-                {post.reading_time_min} min
+                {t("minRead", { min: post.reading_time_min })}
               </span>
             )}
           </div>
@@ -99,6 +105,7 @@ function InsightCard({ post, index }: { post: BlogPost; index: number }) {
 export function LatestInsights({ posts }: { posts: BlogPost[] }) {
   const ref = useRef<HTMLElement>(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
+  const t = useTranslations("Home");
 
   return (
     <section id="insights" ref={ref} className="py-16 sm:py-20">
@@ -111,17 +118,17 @@ export function LatestInsights({ posts }: { posts: BlogPost[] }) {
         >
           <div>
             <p className="text-sm font-semibold uppercase tracking-wider text-accent">
-              Blog
+              {t("insightsLabel")}
             </p>
             <h2 className="mt-2 font-heading text-3xl font-bold tracking-tight sm:text-4xl">
-              Latest Insights
+              {t("insightsHeading")}
             </h2>
           </div>
           <Link
             href="/blog"
             className="hidden items-center gap-1 text-sm font-medium text-accent transition-colors hover:text-accent/80 sm:flex"
           >
-            View All Insights
+            {t("viewAllInsights")}
             <ArrowRight className="h-4 w-4" />
           </Link>
         </motion.div>
@@ -134,7 +141,7 @@ export function LatestInsights({ posts }: { posts: BlogPost[] }) {
           </div>
         ) : (
           <p className="mt-10 text-center text-muted-foreground">
-            No insights published yet. Check back soon.
+            {t("noInsights")}
           </p>
         )}
 
@@ -142,7 +149,7 @@ export function LatestInsights({ posts }: { posts: BlogPost[] }) {
           href="/blog"
           className="mt-8 flex items-center justify-center gap-1 text-sm font-medium text-accent transition-colors hover:text-accent/80 sm:hidden"
         >
-          View All Insights
+          {t("viewAllInsights")}
           <ArrowRight className="h-4 w-4" />
         </Link>
       </div>

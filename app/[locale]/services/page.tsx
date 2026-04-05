@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { getServices } from "@/lib/supabase/queries";
 import { fetchAllSettings } from "@/lib/supabase/settings";
 import { ServiceCard } from "@/components/services/service-card";
@@ -11,9 +12,10 @@ export const metadata = siteMetadata({
   path: "/services",
 });
 
-export const revalidate = 3600;
-
-export default async function ServicesPage() {
+export default async function ServicesPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations("Services");
   const settings = await fetchAllSettings();
   if (!settings.page_visibility.services) notFound();
 
@@ -27,13 +29,13 @@ export default async function ServicesPage() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="max-w-2xl">
           <p className="text-sm font-semibold uppercase tracking-wider text-accent">
-            What I Offer
+            {t("label")}
           </p>
           <h1 className="mt-2 font-heading text-4xl font-bold tracking-tight sm:text-5xl">
-            Services
+            {t("heading")}
           </h1>
           <p className="mt-4 text-lg text-muted-foreground">
-            Tailored financial solutions to help you grow, protect, and optimize your wealth.
+            {t("description")}
           </p>
         </div>
 
@@ -45,7 +47,7 @@ export default async function ServicesPage() {
           </div>
         ) : (
           <p className="mt-12 text-muted-foreground">
-            Services coming soon. Check back shortly.
+            {t("empty")}
           </p>
         )}
       </div>

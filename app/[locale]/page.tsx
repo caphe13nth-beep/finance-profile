@@ -1,6 +1,7 @@
+import { setRequestLocale } from "next-intl/server";
 import dynamic from "next/dynamic";
 import {
-  getPublishedPosts, getCaseStudies, getCareerTimeline, getTestimonials,
+  getPublishedPostsByLocale, getCaseStudies, getCareerTimeline, getTestimonials,
   getProfile, getPersonalProjects, getPhotoGallery, getHobbiesInterests,
 } from "@/lib/supabase/queries";
 import { JsonLd, reviewSchema } from "@/lib/json-ld";
@@ -25,8 +26,6 @@ const FeaturedCaseStudy = dynamic(() => import("@/components/home/featured-case-
   loading: () => <div className="border-y border-border bg-muted/30 py-16"><div className="mx-auto max-w-7xl px-4"><CardSkeleton /></div></div>,
 });
 
-export const revalidate = 3600;
-
 async function safeQuery<T>(fn: () => Promise<{ data: T | null; error?: { message: string } | null }>, label?: string): Promise<T | null> {
   try {
     const result = await fn();
@@ -40,10 +39,12 @@ async function safeQuery<T>(fn: () => Promise<{ data: T | null; error?: { messag
   }
 }
 
-export default async function Home() {
+export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
   const [posts, caseStudies, timeline, testimonials, profile, projects, photos, hobbies] =
     await Promise.all([
-      safeQuery(getPublishedPosts, "published_posts"),
+      safeQuery(() => getPublishedPostsByLocale(locale), "published_posts"),
       safeQuery(getCaseStudies, "case_studies"),
       safeQuery(getCareerTimeline, "career_timeline"),
       safeQuery(getTestimonials, "testimonials"),

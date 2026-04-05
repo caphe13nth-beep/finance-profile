@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { fetchAllSettings } from "@/lib/supabase/settings";
 import { ContactForm } from "@/components/contact/contact-form";
 import { FaqAccordion } from "@/components/contact/faq-accordion";
@@ -13,7 +14,10 @@ export const metadata = siteMetadata({
   path: "/contact",
 });
 
-export default async function ContactPage() {
+export default async function ContactPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations("Contact");
   const settings = await fetchAllSettings();
   if (!settings.page_visibility.contact) notFound();
   return (
@@ -23,14 +27,13 @@ export default async function ContactPage() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="max-w-2xl">
           <p className="text-sm font-semibold uppercase tracking-wider text-accent">
-            Contact
+            {t("label")}
           </p>
           <h1 className="mt-2 font-heading text-4xl font-bold tracking-tight sm:text-5xl">
-            Let&apos;s Connect
+            {t("heading")}
           </h1>
           <p className="mt-4 text-lg text-muted-foreground">
-            Have a question or interested in working together? Send me a message
-            and I&apos;ll get back to you within one business day.
+            {t("description")}
           </p>
         </div>
 

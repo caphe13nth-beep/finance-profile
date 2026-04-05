@@ -17,9 +17,15 @@ const ADMIN_LINKS = [
   { label: "Page Visibility", href: "/admin/settings/pages", icon: Layout, description: "Enable or disable site pages" },
   { label: "Blog Posts", href: "/admin/posts", icon: FileText, description: "Manage articles and insights" },
   { label: "Case Studies", href: "/admin/case-studies", icon: Briefcase, description: "Edit portfolio case studies" },
+  { label: "Services", href: "/admin/services", icon: Briefcase, description: "Manage service offerings" },
+  { label: "Profile", href: "/admin/profile", icon: Users, description: "Edit your profile and bio" },
+  { label: "Insights", href: "/admin/insights", icon: Eye, description: "Market insights and analysis" },
+  { label: "Media Appearances", href: "/admin/media", icon: Eye, description: "Press, podcasts, and videos" },
+  { label: "Timeline", href: "/admin/timeline", icon: Clock, description: "Career timeline entries" },
   { label: "Projects", href: "/admin/projects", icon: FolderOpen, description: "Personal projects and side work" },
   { label: "Photo Gallery", href: "/admin/gallery", icon: ImageIcon, description: "Upload and manage photos" },
   { label: "Hobbies", href: "/admin/hobbies", icon: Heart, description: "Hobbies and interests" },
+  { label: "Resources", href: "/admin/resources", icon: FileText, description: "Downloadable files and guides" },
   { label: "Contacts", href: "/admin/contacts", icon: MessageSquare, description: "View contact form messages" },
   { label: "Subscribers", href: "/admin/subscribers", icon: Mail, description: "Newsletter subscriber list" },
   { label: "Newsletter", href: "/admin/newsletter", icon: Send, description: "Compose and send broadcasts" },
@@ -234,7 +240,7 @@ export default async function AdminDashboardPage() {
           <div className="lg:col-span-2">
             <h3 className="font-heading text-sm font-semibold text-foreground">Quick Access</h3>
             <div className="mt-3 space-y-2">
-              {ADMIN_LINKS.slice(0, 8).map(({ label, href, icon: Icon, description }) => (
+              {ADMIN_LINKS.map(({ label, href, icon: Icon, description }) => (
                 <Link key={label} href={href} className="group flex items-center gap-3 rounded-xl border border-border bg-card p-3 transition-all hover:border-accent/40">
                   <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent/10 transition-colors group-hover:bg-accent/20">
                     <Icon className="h-4 w-4 text-accent" />

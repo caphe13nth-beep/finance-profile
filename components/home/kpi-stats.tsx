@@ -1,119 +1,51 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import {
-  motion,
-  useInView,
-  useMotionValue,
-  useTransform,
-  animate,
-} from "framer-motion";
-import { AreaChart, Area, ResponsiveContainer } from "recharts";
-import {
-  Clock,
-  DollarSign,
-  Users,
-  FileText,
-  TrendingUp,
-  BarChart3,
-  Target,
-  PieChart,
-  Briefcase,
-  Zap,
-} from "lucide-react";
-import type { LucideIcon } from "lucide-react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useSettings } from "@/lib/settings-provider";
+import { cn } from "@/lib/utils";
 
-const ICON_MAP: Record<string, LucideIcon> = {
-  clock: Clock,
-  "dollar-sign": DollarSign,
-  "trending-up": TrendingUp,
-  users: Users,
-  "file-text": FileText,
-  "bar-chart": BarChart3,
-  target: Target,
-  "pie-chart": PieChart,
-  briefcase: Briefcase,
-  zap: Zap,
-};
+// ── Accent border colors — creates a color rhythm across the row ──
+const BORDER_COLORS = [
+  "var(--accent)",
+  "var(--chart-2)",
+  "var(--chart-3)",
+  "var(--chart-4)",
+  "var(--chart-5)",
+];
 
-function getIcon(name: string): LucideIcon {
-  return ICON_MAP[name] ?? TrendingUp;
+// ── Animated number counter (rAF-based, no library) ───────────
+
+function useCountUp(target: number, active: boolean, duration = 1800) {
+  const [value, setValue] = useState(0);
+  const rafRef = useRef(0);
+
+  useEffect(() => {
+    if (!active) return;
+
+    const start = performance.now();
+    function tick(now: number) {
+      const t = Math.min((now - start) / duration, 1);
+      // ease-out cubic
+      const eased = 1 - Math.pow(1 - t, 3);
+      setValue(Math.round(eased * target));
+      if (t < 1) rafRef.current = requestAnimationFrame(tick);
+    }
+    rafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [active, target, duration]);
+
+  return value;
 }
 
-function generateSparkline(value: number): number[] {
-  const points = 12;
-  return Array.from({ length: points }, (_, i) =>
-    Math.round((value * (i + 1)) / points * (0.8 + Math.random() * 0.4))
-  );
-}
+// ── Single stat card ──────────────────────────────────────────
 
-function AnimatedCounter({
+function StatCard({
+  label,
   value,
   prefix,
   suffix,
-  inView,
+  index,
 }: {
-  value: number;
-  prefix: string;
-  suffix: string;
-  inView: boolean;
-}) {
-  const motionVal = useMotionValue(0);
-  const rounded = useTransform(motionVal, (v) => Math.round(v));
-  const [display, setDisplay] = useState(0);
-
-  useEffect(() => {
-    if (!inView) return;
-    const controls = animate(motionVal, value, {
-      duration: 2,
-      ease: "easeOut",
-    });
-    return controls.stop;
-  }, [inView, motionVal, value]);
-
-  useEffect(() => {
-    return rounded.on("change", (v) => setDisplay(v));
-  }, [rounded]);
-
-  return (
-    <span className="font-mono text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-      {prefix}
-      {display.toLocaleString()}
-      {suffix}
-    </span>
-  );
-}
-
-function Sparkline({ data, color }: { data: number[]; color: string }) {
-  const chartData = data.map((v, i) => ({ i, v }));
-  return (
-    <div className="h-10 w-full">
-      <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={chartData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
-          <defs>
-            <linearGradient id={`grad-${color}`} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={color} stopOpacity={0.3} />
-              <stop offset="100%" stopColor={color} stopOpacity={0} />
-            </linearGradient>
-          </defs>
-          <Area
-            type="monotone"
-            dataKey="v"
-            stroke={color}
-            strokeWidth={1.5}
-            fill={`url(#grad-${color})`}
-            dot={false}
-            isAnimationActive={false}
-          />
-        </AreaChart>
-      </ResponsiveContainer>
-    </div>
-  );
-}
-
-function KpiCard({ icon, label, value, prefix, suffix, index }: {
-  icon: LucideIcon;
   label: string;
   value: number;
   prefix: string;
@@ -121,46 +53,80 @@ function KpiCard({ icon, label, value, prefix, suffix, index }: {
   index: number;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
-  const Icon = icon;
-  const color = index % 2 === 0 ? "var(--chart-1)" : "var(--chart-2)";
-  const sparkline = generateSparkline(value);
+  const [inView, setInView] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setInView(true); obs.disconnect(); } },
+      { threshold: 0.3 },
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  const display = useCountUp(value, inView);
+  const borderColor = BORDER_COLORS[index % BORDER_COLORS.length];
 
   return (
-    <motion.div
+    <div
       ref={ref}
-      initial={{ opacity: 0, y: 30 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
-      className="relative overflow-hidden rounded-xl border border-border bg-card p-5"
+      className="group relative min-w-[160px] shrink-0 snap-start border-l-2 py-5 pl-5 pr-4 transition-colors sm:min-w-0"
+      style={{ borderLeftColor: borderColor }}
     >
-      <div className="flex items-start justify-between">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10">
-          <Icon className="h-5 w-5 text-accent" />
-        </div>
-      </div>
-      <div className="mt-4">
-        <AnimatedCounter value={value} prefix={prefix} suffix={suffix} inView={inView} />
-        <p className="mt-1 text-sm text-muted-foreground">{label}</p>
-      </div>
-      <div className="mt-3">
-        <Sparkline data={sparkline} color={color} />
-      </div>
-    </motion.div>
+      {/* Number */}
+      <span
+        className={cn(
+          "block font-heading font-bold tracking-tight text-foreground transition-colors duration-300",
+          "text-[clamp(3rem,5vw,5rem)] leading-none",
+          "group-hover:text-[var(--accent)]",
+        )}
+      >
+        {prefix && <span className="text-[0.6em] align-baseline">{prefix}</span>}
+        {display.toLocaleString()}
+        {suffix && <span className="text-[0.6em] align-baseline">{suffix}</span>}
+      </span>
+
+      {/* Label with sliding underline on hover */}
+      <span className="relative mt-2 block text-xs font-medium uppercase tracking-widest text-muted-foreground" style={{ fontFamily: "var(--font-mono, ui-monospace, monospace)" }}>
+        {label}
+        <span
+          className="absolute bottom-0 left-0 h-px w-0 bg-accent transition-all duration-300 group-hover:w-full"
+        />
+      </span>
+    </div>
   );
 }
+
+// ── Main export ───────────────────────────────────────────────
 
 export function KpiStats() {
   const { stats_bar } = useSettings();
 
+  if (!stats_bar.stats.length) return null;
+
   return (
-    <section id="stats" className="py-16 sm:py-20">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5 lg:gap-6">
+    <section
+      id="stats"
+      className="stats-bar-section relative py-16 sm:py-20"
+    >
+      {/* Diagonal stripe pattern at 2% opacity */}
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "repeating-linear-gradient(135deg, transparent, transparent 10px, var(--foreground) 10px, var(--foreground) 11px)",
+          opacity: 0.02,
+        }}
+      />
+
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        {/* Mobile: horizontal scroll. Desktop: grid */}
+        <div className="flex snap-x snap-mandatory gap-2 overflow-x-auto pb-2 scrollbar-none sm:grid sm:grid-cols-3 sm:gap-4 sm:overflow-visible lg:grid-cols-5 lg:gap-6">
           {stats_bar.stats.map((stat, i) => (
-            <KpiCard
+            <StatCard
               key={stat.label}
-              icon={getIcon(stat.icon)}
               label={stat.label}
               value={stat.value}
               prefix={stat.prefix}

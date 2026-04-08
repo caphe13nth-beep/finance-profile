@@ -40,6 +40,10 @@ export interface SiteIdentity {
   logo_url: string | null;
   favicon_url: string | null;
   og_image_url: string | null;
+  avatar_url: string | null;
+  cover_image_url: string | null;
+  avatar_shape: "circle" | "squircle" | "hexagon";
+  cover_overlay: "none" | "gradient-mesh" | "gradient-linear" | "dark-vignette";
   site_mode: "personal" | "finance" | "hybrid";
   footer_text: string;
   giscus_repo: string;

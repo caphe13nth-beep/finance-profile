@@ -421,7 +421,7 @@ insert into public.site_settings (key, value) values
 on conflict (key) do nothing;
 
 insert into public.site_settings (key, value) values
-('site_identity', '{"site_name":"Your Name","tagline":"Finance Professional & Advisor","logo_url":null,"favicon_url":null,"og_image_url":null,"site_mode":"hybrid","footer_text":"© 2026 Your Name. All rights reserved."}'::jsonb)
+('site_identity', '{"site_name":"Your Name","tagline":"Finance Professional & Advisor","logo_url":null,"favicon_url":null,"og_image_url":null,"avatar_url":null,"cover_image_url":null,"avatar_shape":"squircle","cover_overlay":"gradient-mesh","site_mode":"hybrid","footer_text":"© 2026 Your Name. All rights reserved."}'::jsonb)
 on conflict (key) do nothing;
 
 insert into public.site_settings (key, value) values

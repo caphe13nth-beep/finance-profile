@@ -1,4 +1,3 @@
-import Script from "next/script";
 import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { hasLocale } from "next-intl";
@@ -11,7 +10,8 @@ import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { CommandPalette } from "@/components/command-palette";
 import { PageTransition } from "@/components/page-transition";
-import { BackToTop } from "@/components/back-to-top";
+import { FloatingActions } from "@/components/ui/floating-actions";
+import { ScrollProgress } from "@/components/scroll-progress";
 import { fetchAllSettings, SETTINGS_DEFAULTS } from "@/lib/supabase/settings";
 import type { SiteSettings } from "@/types/settings";
 import { routing } from "@/i18n/routing";
@@ -126,28 +126,20 @@ export default async function LocaleLayout({
 
   return (
     <>
-      <Script
-        id="set-lang"
-        strategy="beforeInteractive"
-        dangerouslySetInnerHTML={{
-          __html: `document.documentElement.lang="${locale}";`,
-        }}
-      />
-      {fontUrl && (
-        <>
-          <link rel="preconnect" href="https://fonts.googleapis.com" />
-          <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-          <link rel="stylesheet" href={fontUrl} />
-        </>
-      )}
-      {(themeStyle || fontCss) && (
-        <style dangerouslySetInnerHTML={{ __html: themeStyle + fontCss }} />
-      )}
-      <Script
-        id="theme-init"
-        strategy="beforeInteractive"
-        dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }}
-      />
+      <head>
+        {fontUrl && (
+          <>
+            <link rel="preconnect" href="https://fonts.googleapis.com" />
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+            <link rel="stylesheet" href={fontUrl} />
+          </>
+        )}
+        {(themeStyle || fontCss) && (
+          <style dangerouslySetInnerHTML={{ __html: themeStyle + fontCss }} />
+        )}
+        <script dangerouslySetInnerHTML={{ __html: `document.documentElement.lang="${locale}";` }} />
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+      </head>
       <a href="#main-content" className="skip-link">
         Skip to content
       </a>
@@ -160,8 +152,9 @@ export default async function LocaleLayout({
         <SettingsProvider settings={settings}>
           <NextIntlClientProvider messages={messages}>
             <ToastProvider>
+              <ScrollProgress />
               <CommandPalette />
-              <BackToTop />
+              <FloatingActions />
               <Header />
               <main id="main-content" className="flex-1">
                 <PageTransition>{children}</PageTransition>

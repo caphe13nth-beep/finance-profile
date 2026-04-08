@@ -87,6 +87,10 @@ insert into public.site_settings (key, value) values
   "logo_url": null,
   "favicon_url": null,
   "og_image_url": null,
+  "avatar_url": null,
+  "cover_image_url": null,
+  "avatar_shape": "squircle",
+  "cover_overlay": "gradient-mesh",
   "site_mode": "hybrid",
   "footer_text": "© 2026 Your Name. All rights reserved."
 }'::jsonb);

@@ -16,7 +16,9 @@ const DEFAULTS: SiteSettings = {
   },
   site_identity: {
     site_name: "Your Name", tagline: "Finance Professional & Advisor",
-    logo_url: null, favicon_url: null, og_image_url: null, site_mode: "hybrid",
+    logo_url: null, favicon_url: null, og_image_url: null,
+    avatar_url: null, cover_image_url: null, avatar_shape: "squircle", cover_overlay: "gradient-mesh",
+    site_mode: "hybrid",
     footer_text: "© 2026 Your Name. All rights reserved.",
     giscus_repo: "", giscus_repo_id: "", giscus_category: "", giscus_category_id: "",
   },

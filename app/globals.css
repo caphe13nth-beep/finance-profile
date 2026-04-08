@@ -226,3 +226,151 @@
 .prose-preview ul, .prose-preview ol { padding-left: 1.5rem; margin-bottom: 0.5rem; color: var(--muted-foreground); }
 .prose-preview ul { list-style: disc; }
 .prose-preview ol { list-style: decimal; }
+
+/* ── ProfileAvatar ──────────────────────────────────
+   Animated gradient ring + shimmer for profile-avatar.tsx
+   Uses @property for smooth conic-gradient rotation.
+   Firefox fallback: a slow rotate on the pseudo-element. */
+
+@property --avatar-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.avatar-ring {
+  background: conic-gradient(
+    from var(--avatar-angle, 0deg),
+    var(--accent),
+    var(--primary),
+    var(--accent)
+  );
+  animation: avatar-spin 4s linear infinite;
+}
+
+@keyframes avatar-spin {
+  to { --avatar-angle: 360deg; }
+}
+
+/* Firefox fallback — @property isn't supported, so the conic-gradient
+   won't animate. Instead we rotate the element itself. */
+@supports not (background: paint(a)) {
+  @supports (-moz-appearance: none) {
+    .avatar-ring {
+      background: conic-gradient(
+        from 0deg,
+        var(--accent),
+        var(--primary),
+        var(--accent)
+      );
+      animation: avatar-spin-ff 4s linear infinite;
+    }
+    @keyframes avatar-spin-ff {
+      to { rotate: 360deg; }
+    }
+  }
+}
+
+.avatar-shimmer {
+  background: linear-gradient(
+    110deg,
+    var(--muted) 30%,
+    color-mix(in srgb, var(--muted-foreground) 10%, transparent) 50%,
+    var(--muted) 70%
+  );
+  background-size: 200% 100%;
+  animation: avatar-shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes avatar-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── Timeline dot pulse ─────────────────────────── */
+.timeline-dot-pulse {
+  animation: dot-ping 0.6s ease-out;
+}
+@keyframes dot-ping {
+  0%   { box-shadow: 0 0 0 0 var(--accent); }
+  70%  { box-shadow: 0 0 0 8px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+
+/* ── Now section sticky-note cards ──────────────── */
+:root {
+  --now-card-bg: #FFFDF7;
+}
+.dark {
+  --now-card-bg: var(--card);
+}
+.now-card {
+  border-color: var(--border);
+  box-shadow: 0 2px 8px -2px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
+}
+.dark .now-card {
+  border-color: color-mix(in srgb, var(--accent) 15%, var(--border));
+  background-image: none !important;
+}
+.now-card:hover {
+  rotate: 0deg !important;
+  box-shadow: 0 8px 20px -4px rgba(0,0,0,0.10), 0 2px 6px rgba(0,0,0,0.06);
+}
+
+/* ── Hobby cards — pastel tints + icon wiggle ──── */
+.hobby-card {
+  background: var(--hobby-bg-light);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+.dark .hobby-card {
+  background: var(--hobby-bg-dark);
+  border-color: var(--border);
+}
+.hobby-card:hover {
+  box-shadow: 0 12px 28px -8px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.06);
+}
+.hobby-card:hover .hobby-icon {
+  animation: hobby-wiggle 0.5s ease-in-out;
+}
+@keyframes hobby-wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  20%  { transform: rotate(-12deg); }
+  40%  { transform: rotate(10deg); }
+  60%  { transform: rotate(-6deg); }
+  80%  { transform: rotate(4deg); }
+}
+
+/* ── Command palette — spotlight polish ─────────── */
+.cmd-dialog {
+  animation: cmd-enter 100ms ease-out;
+}
+@keyframes cmd-enter {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.cmd-kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding: 0 0.25rem;
+  border-radius: 0.25rem;
+  border: 1px solid var(--border);
+  background: var(--muted);
+  font-size: 0.625rem;
+  font-family: inherit;
+  line-height: 1;
+}
+
+/* ── Theme transition — applied temporarily on toggle ── */
+.theme-transition,
+.theme-transition *,
+.theme-transition *::before,
+.theme-transition *::after {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important;
+}
+
+/* ── Scrollbar hide utility ─────────────────────── */
+.scrollbar-none { scrollbar-width: none; }
+.scrollbar-none::-webkit-scrollbar { display: none; }

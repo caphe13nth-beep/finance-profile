@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { updateSetting } from "@/app/actions/settings";
 import { AdminShell } from "@/components/admin/admin-shell";
 import { ImageUpload } from "@/components/admin/image-upload";
+import { AvatarCoverUpload } from "@/components/admin/avatar-cover-upload";
 import { CheckCircle2 } from "lucide-react";
 
 const inputCls = "mt-1 h-9 w-full rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring";
@@ -16,6 +17,10 @@ interface Identity {
   logo_url: string | null;
   favicon_url: string | null;
   og_image_url: string | null;
+  avatar_url: string | null;
+  cover_image_url: string | null;
+  avatar_shape: string;
+  cover_overlay: string;
   site_mode: string;
   footer_text: string;
   giscus_repo: string;
@@ -26,7 +31,9 @@ interface Identity {
 
 const EMPTY: Identity = {
   site_name: "", tagline: "", logo_url: null, favicon_url: null,
-  og_image_url: null, site_mode: "hybrid", footer_text: "",
+  og_image_url: null, avatar_url: null, cover_image_url: null,
+  avatar_shape: "squircle", cover_overlay: "gradient-mesh",
+  site_mode: "hybrid", footer_text: "",
   giscus_repo: "", giscus_repo_id: "", giscus_category: "", giscus_category_id: "",
 };
 
@@ -116,6 +123,34 @@ export default function AdminGeneralPage() {
           label="Default OG Image (1200×630)"
           maxSizeMb={2}
         />
+
+        {/* Avatar & Cover */}
+        <AvatarCoverUpload
+          avatarUrl={data.avatar_url}
+          coverUrl={data.cover_image_url}
+          avatarShape={data.avatar_shape}
+          onAvatarChange={(url) => set("avatar_url", url)}
+          onCoverChange={(url) => set("cover_image_url", url)}
+        />
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className={labelCls}>Avatar Shape</label>
+            <select value={data.avatar_shape} onChange={(e) => set("avatar_shape", e.target.value)} className={inputCls}>
+              <option value="squircle">Squircle (default)</option>
+              <option value="circle">Circle</option>
+              <option value="hexagon">Hexagon</option>
+            </select>
+          </div>
+          <div>
+            <label className={labelCls}>Cover Overlay</label>
+            <select value={data.cover_overlay} onChange={(e) => set("cover_overlay", e.target.value)} className={inputCls}>
+              <option value="gradient-mesh">Gradient Mesh</option>
+              <option value="gradient-linear">Gradient Linear</option>
+              <option value="dark-vignette">Dark Vignette</option>
+              <option value="none">None</option>
+            </select>
+          </div>
+        </div>
       </div>
 
       {/* Giscus Comments */}

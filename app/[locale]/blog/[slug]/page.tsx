@@ -9,7 +9,7 @@ import { ArrowLeft, Clock, Calendar } from "lucide-react";
 import { getPostBySlug, getRelatedPosts, getProfile, getPostTranslations } from "@/lib/supabase/queries";
 import { TranslationSwitcher } from "@/components/blog/translation-switcher";
 import { mdxComponents } from "@/components/blog/mdx-components";
-import { ReadingProgress } from "@/components/blog/reading-progress";
+
 import { TableOfContents, MobileToc } from "@/components/blog/table-of-contents";
 import { AuthorCard } from "@/components/blog/author-card";
 import { RelatedArticles } from "@/components/blog/related-articles";
@@ -77,7 +77,6 @@ export default async function BlogPostPage({ params }: Props) {
         })}
       />
       <ViewTracker postId={post.id} />
-      <ReadingProgress />
 
       <MobileToc />
 

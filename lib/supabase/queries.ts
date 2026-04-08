@@ -284,3 +284,24 @@ export const getHobbiesInterests = unstable_cache(
   ["hobbies-interests"],
   { revalidate: CONTENT_REVALIDATE, tags: CONTENT_TAGS }
 );
+
+// ── Blog Reaction Counts (batch) ────────────────────────
+// Returns { [post_id]: { like, insightful, fire, bookmark } }
+export const getBlogReactionCounts = unstable_cache(
+  async () => {
+    const { data } = await db()
+      .from("blog_reactions")
+      .select("post_id, reaction");
+
+    const counts: Record<string, Record<string, number>> = {};
+    for (const row of data ?? []) {
+      const pid = row.post_id as string;
+      const r = row.reaction as string;
+      if (!counts[pid]) counts[pid] = { like: 0, insightful: 0, fire: 0, bookmark: 0 };
+      if (r in counts[pid]) counts[pid][r]++;
+    }
+    return { data: counts, error: null };
+  },
+  ["blog-reaction-counts"],
+  { revalidate: CONTENT_REVALIDATE, tags: CONTENT_TAGS }
+);

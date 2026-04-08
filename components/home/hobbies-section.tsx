@@ -9,6 +9,9 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { cn } from "@/lib/utils";
+
+// ── Types ──────────────────────────────────────────
 
 interface Hobby {
   id: string;
@@ -18,6 +21,8 @@ interface Hobby {
   image_url: string | null;
   sort_order: number;
 }
+
+// ── Icon map ───────────────────────────────────────
 
 const ICON_MAP: Record<string, LucideIcon> = {
   heart: Heart, music: Music, camera: Camera, gaming: Gamepad2,
@@ -30,6 +35,23 @@ function getIcon(name: string | null): LucideIcon {
   return ICON_MAP[name.toLowerCase()] ?? Heart;
 }
 
+// ── Pastel palette — 8 hues in the accent family ───
+// Light mode: high lightness, low saturation pastels
+// Dark mode: low lightness, low saturation muted tints
+// Each pair: [lightBg, darkBg]
+const PASTELS: [string, string][] = [
+  ["hsl(160 30% 94%)", "hsl(160 20% 16%)"],
+  ["hsl(200 30% 94%)", "hsl(200 20% 16%)"],
+  ["hsl(280 25% 94%)", "hsl(280 15% 16%)"],
+  ["hsl(340 25% 94%)", "hsl(340 15% 16%)"],
+  ["hsl(40  30% 94%)", "hsl(40  20% 16%)"],
+  ["hsl(80  25% 94%)", "hsl(80  15% 16%)"],
+  ["hsl(120 25% 94%)", "hsl(120 15% 16%)"],
+  ["hsl(220 25% 94%)", "hsl(220 15% 16%)"],
+];
+
+// ── Component ──────────────────────────────────────
+
 export function HobbiesSection({ hobbies }: { hobbies: Hobby[] }) {
   const ref = useRef<HTMLElement>(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
@@ -40,6 +62,7 @@ export function HobbiesSection({ hobbies }: { hobbies: Hobby[] }) {
   return (
     <section id="hobbies" ref={ref} className="py-16 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
@@ -53,43 +76,73 @@ export function HobbiesSection({ hobbies }: { hobbies: Hobby[] }) {
           </h2>
         </motion.div>
 
-        <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+        {/* Auto-fill grid */}
+        <div
+          className="mt-10 grid gap-4"
+          style={{
+            gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+          }}
+        >
           {hobbies.map((hobby, i) => {
             const Icon = getIcon(hobby.icon);
+            const [lightBg, darkBg] = PASTELS[i % PASTELS.length];
+
             return (
               <motion.div
                 key={hobby.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={inView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.4, delay: i * 0.06 }}
-                className="group flex flex-col overflow-hidden rounded-xl border border-border bg-card transition-all hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-lg"
-              >
-                {hobby.image_url ? (
-                  <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-                    <Image
-                      src={hobby.image_url}
-                      alt={hobby.title}
-                      fill
-                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                  </div>
-                ) : (
-                  <div className="flex aspect-[4/3] items-center justify-center bg-gradient-to-br from-accent/5 to-chart-2/5">
-                    <Icon className="h-10 w-10 text-accent/30" />
-                  </div>
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={inView ? { opacity: 1, scale: 1 } : {}}
+                transition={{
+                  type: "spring",
+                  stiffness: 300,
+                  damping: 22,
+                  delay: i * 0.06,
+                }}
+                className={cn(
+                  "hobby-card group flex flex-col items-center rounded-2xl border border-transparent p-6 text-center",
+                  "transition-all duration-300 hover:-translate-y-1.5",
                 )}
-                <div className="p-4">
-                  <div className="flex items-center gap-2">
-                    <Icon className="h-4 w-4 text-accent" />
-                    <h3 className="font-heading text-sm font-semibold">{hobby.title}</h3>
-                  </div>
-                  {hobby.description && (
-                    <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground line-clamp-2">
-                      {hobby.description}
-                    </p>
+                style={{
+                  // Light/dark handled via CSS custom property
+                  ["--hobby-bg-light" as string]: lightBg,
+                  ["--hobby-bg-dark" as string]: darkBg,
+                }}
+              >
+                {/* Icon / emoji with wiggle on hover */}
+                <div className="hobby-icon relative flex items-center justify-center">
+                  {hobby.icon && /\p{Emoji_Presentation}/u.test(hobby.icon) ? (
+                    <span className="text-4xl" role="img" aria-hidden>
+                      {hobby.icon}
+                    </span>
+                  ) : (
+                    <Icon className="h-9 w-9 text-accent" />
+                  )}
+
+                  {/* Circular image thumbnail next to icon */}
+                  {hobby.image_url && (
+                    <div className="absolute -right-3 -top-2 h-7 w-7 overflow-hidden rounded-full border-2 border-background shadow-sm">
+                      <Image
+                        src={hobby.image_url}
+                        alt=""
+                        width={28}
+                        height={28}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
                   )}
                 </div>
+
+                {/* Title */}
+                <h3 className="mt-3 font-heading text-sm font-semibold text-foreground">
+                  {hobby.title}
+                </h3>
+
+                {/* Description */}
+                {hobby.description && (
+                  <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
+                    {hobby.description}
+                  </p>
+                )}
               </motion.div>
             );
           })}

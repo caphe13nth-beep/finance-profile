@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { getPublishedPostsByLocale } from "@/lib/supabase/queries";
+import { getPublishedPostsByLocale, getBlogReactionCounts } from "@/lib/supabase/queries";
 import { fetchAllSettings } from "@/lib/supabase/settings";
 import { BlogList } from "@/components/blog/blog-list";
 import { siteMetadata } from "@/lib/metadata";
@@ -18,7 +18,10 @@ export default async function BlogPage({ params }: { params: Promise<{ locale: s
   const settings = await fetchAllSettings();
   if (!settings.page_visibility.blog) notFound();
 
-  const { data: posts } = await getPublishedPostsByLocale(locale);
+  const [{ data: posts }, { data: reactionCounts }] = await Promise.all([
+    getPublishedPostsByLocale(locale),
+    getBlogReactionCounts(),
+  ]);
 
   return (
     <section className="py-16 sm:py-24">
@@ -36,7 +39,7 @@ export default async function BlogPage({ params }: { params: Promise<{ locale: s
         </div>
 
         <div className="mt-10">
-          <BlogList posts={posts ?? []} />
+          <BlogList posts={posts ?? []} reactionCounts={reactionCounts ?? {}} />
         </div>
       </div>
     </section>

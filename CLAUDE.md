@@ -11,6 +11,9 @@
 - Every homepage section checks section_visibility before rendering
 - Navbar/Footer read page_visibility to show/hide links
 - After any settings change, call `revalidateTag("settings", { expire: 0 })`
+- `site_identity` includes `avatar_url`, `cover_image_url`,
+  `avatar_shape` (circle|squircle|hexagon), `cover_overlay`
+  (none|gradient-mesh|gradient-linear|dark-vignette)
 
 ## Theme System
 - Theme colors and fonts read from `site_settings.theme`
@@ -25,6 +28,12 @@
 - Theme init script in `<head>` reads localStorage to set
   dark/light class before paint (prevents flash)
 - next-themes `<ThemeProvider>` handles toggle at runtime
+- Theme toggle: pill-shaped sun/moon toggle with sliding knob,
+  adds `.theme-transition` class to `<html>` for 500ms to
+  smoothly transition all background/color/border properties
+- CSS variables store hex values directly (e.g. `--accent: #10B981`)
+  — use `var(--accent)` not `hsl(var(--accent))`; use
+  `color-mix(in srgb, var(--accent) 35%, transparent)` for opacity
 
 ## Site Modes
 - `site_identity.site_mode` controls overall tone:
@@ -78,6 +87,8 @@
 
 ### Added in v2
 - **site_settings** — key (text unique) + value (JSONB) config store
+  - `site_identity` now includes: avatar_url, cover_image_url,
+    avatar_shape, cover_overlay (added in design update)
 - **personal_projects** — side projects with title, category,
   image_url, link, tags, is_featured, sort_order
 - **photo_gallery** — personal photos with image_url, caption,
@@ -92,7 +103,57 @@
   recipient_count
 
 ### Storage buckets (Supabase Storage, all public)
-- avatars, blog-images, documents, case-study-assets
+- avatars (profile/), blog-images (covers/), documents,
+  case-study-assets
+
+## Design System Components (v3)
+
+### ProfileAvatar (`components/ui/profile-avatar.tsx`)
+- Reusable avatar with animated gradient ring, multiple shapes
+- Props: `src`, `fallback` (initials), `size` (sm/md/lg/xl),
+  `shape` (circle|squircle|hexagon)
+- Squircle default — 16-point superellipse CSS clip-path
+- Animated conic-gradient ring using `@property` (globals.css)
+- Exports: `ProfileAvatar` (full), `InlineProfileAvatar` (sm)
+- Hover: scale + glow bloom via group-hover pattern
+
+### Hero Cover Image (`components/home/hero.tsx`)
+- Supports `site_identity.cover_image_url` as full-bleed bg
+- Parallax at 0.5× scroll speed (disabled on mobile)
+- Layered overlays controlled by `site_identity.cover_overlay`
+- Frosted glass card wraps text when cover present
+- Without cover: keeps original grid/dots/gradient patterns
+
+### Floating Actions (`components/ui/floating-actions.tsx`)
+- Unified bottom-right floating area (replaces BackToTop)
+- Back-to-top button (accent bg, 44px touch target)
+- Reading progress ring on blog posts (auto-detected via pathname)
+- Appears after 400px scroll with framer-motion slide-up
+
+### RevealOnScroll (`components/ui/reveal-on-scroll.tsx`)
+- Reusable scroll-triggered animation wrapper
+- Variants: fadeUp, fadeLeft, fadeRight, scaleIn
+- `delay` prop for stagger, `will-change` auto-cleanup
+- Most homepage sections have built-in reveal animations;
+  use this for new sections or non-animated content
+
+### Scroll Progress (`components/scroll-progress.tsx`)
+- Global 2px accent bar at top of viewport
+- GPU-accelerated via `transform: scaleX()`
+
+### AvatarCoverUpload (`components/admin/avatar-cover-upload.tsx`)
+- Admin drag-and-drop upload for avatar + cover images
+- CSS-based crop modal (square for avatar, 16:9 for cover)
+- Live `<ProfileAvatar>` preview for avatar
+
+### globals.css custom classes
+- `.avatar-ring`, `.avatar-shimmer` — ProfileAvatar animations
+- `.timeline-dot-pulse` — timeline dot entrance pulse
+- `.now-card` — sticky-note card (paper texture, rotation, hover)
+- `.hobby-card`, `.hobby-icon` — pastel cards + wiggle animation
+- `.cmd-dialog`, `.cmd-kbd` — command palette spotlight styling
+- `.theme-transition` — temporary class for smooth theme switch
+- `.scrollbar-none` — hides scrollbar for horizontal scroll areas
 
 ## Caching Strategy
 - Two cache tags: `"content"` and `"settings"`
@@ -141,3 +202,48 @@
 - **lightweight-charts** — finance charts
 - **shadcn** + **tailwind-merge** + **class-variance-authority** +
   **clsx** — styling utilities
+
+## New Public Pages (v3)
+- `/[locale]/gallery` — full photo gallery with masonry grid,
+  category filter (layoutId underline), lightbox. Uses
+  `PhotoGalleryFull` from `components/home/photo-gallery.tsx`
+- `/[locale]/projects` — bento grid of personal projects with
+  tag filter. Uses `PersonalProjectsFull` from
+  `components/home/personal-projects.tsx`
+- Both check `section_visibility` and return `notFound()` if
+  disabled
+
+## Homepage Section Components (redesigned in v3)
+- `components/home/hero.tsx` — cover image + parallax
+- `components/home/kpi-stats.tsx` — bold typographic counters
+  (no framer-motion, uses rAF + IntersectionObserver)
+- `components/home/career-timeline.tsx` — center vertical
+  timeline, alternating cards, SVG scroll-draw line
+- `components/home/testimonials.tsx` — editorial quote carousel,
+  Cormorant Garamond italic font, auto-rotate 6s
+- `components/home/photo-gallery.tsx` — masonry grid + lightbox,
+  exports both `PhotoGallery` (homepage, max 6) and
+  `PhotoGalleryFull` (gallery page, with filters)
+- `components/home/personal-projects.tsx` — bento grid,
+  exports both `PersonalProjects` (homepage) and
+  `PersonalProjectsFull` (projects page, with tag filter)
+- `components/home/hobbies-section.tsx` — pastel icon cards,
+  auto-fill grid, CSS wiggle animation
+- `components/home/now-section.tsx` — sticky-note pinboard,
+  scattered rotation, Caveat handwriting font
+- `components/blog/blog-list.tsx` — editorial magazine layout
+  with hero card + mixed grid, reaction counts from
+  `getBlogReactionCounts()` cached query
+
+## New Cached Query
+- `getBlogReactionCounts()` in `lib/supabase/queries.ts` —
+  aggregates all blog_reactions into `{ [post_id]: counts }`,
+  cached 30min with tag `"content"`. Used by blog listing page.
+
+## OG Image Generator (`app/api/og/route.tsx`)
+- Edge runtime, fetches site_identity + profile from Supabase
+- `?type=blog&title=...&category=...` — blog OG with avatar +
+  "By [name]" footer, category badge
+- `?type=default` — homepage OG with centered avatar, cover
+  image background (if set), site name + tagline
+- Params: title, subtitle, category, type

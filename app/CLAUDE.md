@@ -93,6 +93,9 @@
   no cookies — required for `unstable_cache` compatibility)
 - Browser client (`lib/supabase/client.ts`) only in
   `"use client"` components
+- `getBlogReactionCounts()` — batch query for all reaction
+  counts, cached 30min. Used by blog listing page to show
+  inline reaction badges without per-post API calls.
 
 ## API Routes
 
@@ -110,7 +113,11 @@
   active reactions for current visitor
 - **POST /api/views** — increment `blog_posts.view_count` via
   RPC or fallback UPDATE. Rate limited: 60/hr per IP
-- **GET /api/og** — dynamic OG image generation via `@vercel/og`
+- **GET /api/og** — dynamic OG image generation via `@vercel/og`.
+  Params: title, subtitle, category, type (blog|default).
+  Fetches avatar_url, site_name from site_identity + profile name.
+  Blog type: title + category badge + avatar "By [name]" footer.
+  Default type: centered avatar, cover bg, site name + tagline.
 
 ### Protected
 - **POST /api/revalidate** — requires `x-revalidate-token`
@@ -126,7 +133,9 @@
 
 ### Settings (all update `site_settings` table)
 - `/admin/settings` — settings overview / hub
-- `/admin/settings/general` — site name, mode, logo, identity
+- `/admin/settings/general` — site name, mode, logo, identity,
+  avatar/cover upload (drag-drop + crop modal via
+  `<AvatarCoverUpload>`), avatar shape, cover overlay
 - `/admin/settings/sections` — toggle homepage sections
 - `/admin/settings/pages` — toggle site pages (updates navbar)
 - `/admin/settings/hero` — hero heading, CTAs, background style
@@ -170,6 +179,24 @@
    `<ImageUpload>` component
 6. After any content mutation: `revalidateTag("content")`
 7. After settings mutation: `revalidateTag("settings")`
+
+## New Public Pages (v3)
+- `/[locale]/gallery` — full photo gallery page with masonry grid,
+  category filter (framer-motion layoutId underline), lightbox.
+  Checks `section_visibility.photo_gallery`, returns notFound()
+  if disabled. Uses `PhotoGalleryFull` component.
+- `/[locale]/projects` — bento grid of personal projects with
+  tag filter. Checks `section_visibility.personal_projects`,
+  returns notFound() if disabled. Uses `PersonalProjectsFull`.
+
+## Locale Layout Components
+- `<ScrollProgress>` — global 2px accent scroll bar at top
+- `<CommandPalette>` — spotlight search (Cmd+K)
+- `<FloatingActions>` — unified bottom-right area with
+  back-to-top + reading progress ring (blog posts only,
+  auto-detected via pathname)
+- `<PageTransition>` — framer-motion AnimatePresence with
+  fade + y-shift, scrolls to top on route change
 
 ## Site Modes
 - `site_identity.site_mode` controls overall tone:

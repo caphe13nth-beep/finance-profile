@@ -1,10 +1,14 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import Head from "next/head";
 import { motion, useInView, AnimatePresence } from "framer-motion";
-import Image from "next/image";
-import { ChevronLeft, ChevronRight, Quote } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { InlineProfileAvatar } from "@/components/ui/profile-avatar";
+import { cn } from "@/lib/utils";
+
+// ── Types ──────────────────────────────────────────
 
 interface Testimonial {
   id: string;
@@ -15,96 +19,145 @@ interface Testimonial {
   sort_order: number;
 }
 
+// Initials from full name (first + last initial)
+function initials(name: string) {
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0][0] ?? "?";
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+// ── Component ──────────────────────────────────────
+
+const INTERVAL = 6000;
+
+const slideVariants = {
+  enter: { opacity: 0, y: 24 },
+  center: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -16 },
+};
+
 export function Testimonials({
   testimonials,
 }: {
   testimonials: Testimonial[];
 }) {
-  const ref = useRef<HTMLElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
+  const sectionRef = useRef<HTMLElement>(null);
+  const inView = useInView(sectionRef, { once: true, margin: "-80px" });
   const [current, setCurrent] = useState(0);
-
+  const [hovered, setHovered] = useState(false);
   const t = useTranslations("Home");
 
-  if (testimonials.length === 0) return null;
+  const count = testimonials.length;
 
-  const prev = () =>
-    setCurrent((c) => (c === 0 ? testimonials.length - 1 : c - 1));
-  const next = () =>
-    setCurrent((c) => (c === testimonials.length - 1 ? 0 : c + 1));
+  const goNext = useCallback(
+    () => setCurrent((c) => (c + 1) % count),
+    [count],
+  );
+  const goPrev = useCallback(
+    () => setCurrent((c) => (c - 1 + count) % count),
+    [count],
+  );
+
+  // Auto-rotate — pause on hover
+  useEffect(() => {
+    if (count <= 1 || hovered) return;
+    const id = setInterval(goNext, INTERVAL);
+    return () => clearInterval(id);
+  }, [count, hovered, goNext]);
+
+  if (count === 0) return null;
 
   const item = testimonials[current];
 
   return (
-    <section
-      id="testimonials"
-      ref={ref}
-      className="border-y border-border bg-muted/30 py-16 sm:py-20"
-    >
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.5 }}
-        >
-          <p className="text-sm font-semibold uppercase tracking-wider text-accent">
-            {t("testimonialsLabel")}
-          </p>
-          <h2 className="mt-2 font-heading text-3xl font-bold tracking-tight sm:text-4xl">
-            {t("testimonialsHeading")}
-          </h2>
-        </motion.div>
+    <>
+      {/* Editorial serif font — loaded only when testimonials render */}
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;1,400;1,500&display=swap"
+      />
 
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.5, delay: 0.15 }}
-          className="relative mt-12 flex flex-col items-center"
-        >
-          <div
-            className="w-full max-w-2xl touch-pan-y"
-            onTouchStart={(e) => { (e.currentTarget as HTMLDivElement).dataset.touchX = String(e.touches[0].clientX); }}
-            onTouchEnd={(e) => {
-              const startX = Number((e.currentTarget as HTMLDivElement).dataset.touchX ?? 0);
-              const diff = (e.changedTouches[0]?.clientX ?? 0) - startX;
-              if (Math.abs(diff) > 50) { diff > 0 ? prev() : next(); }
-            }}
+      <section
+        id="testimonials"
+        ref={sectionRef}
+        className="relative overflow-hidden py-20 sm:py-28"
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+      >
+        {/* Radial gradient background */}
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(ellipse 60% 50% at 50% 50%, color-mix(in srgb, var(--accent) 6%, transparent), transparent)",
+          }}
+        />
+
+        <div className="relative mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+          {/* Section header */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.5 }}
+            className="text-center"
           >
+            <p className="text-sm font-semibold uppercase tracking-wider text-accent">
+              {t("testimonialsLabel")}
+            </p>
+            <h2 className="mt-2 font-heading text-3xl font-bold tracking-tight sm:text-4xl">
+              {t("testimonialsHeading")}
+            </h2>
+          </motion.div>
+
+          {/* Quote area */}
+          <div className="relative mt-14 flex min-h-[280px] flex-col items-center justify-center text-center">
+            {/* Decorative opening quotation mark */}
+            <span
+              className="pointer-events-none absolute -top-4 left-1/2 -translate-x-1/2 select-none text-accent/[0.08] dark:text-accent/[0.12]"
+              style={{
+                fontSize: "8rem",
+                lineHeight: 1,
+                fontFamily: '"Cormorant Garamond", "Georgia", serif',
+              }}
+              aria-hidden
+            >
+              &ldquo;
+            </span>
+
             <AnimatePresence mode="wait">
               <motion.div
                 key={item.id}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3 }}
-                className="rounded-2xl border border-border bg-card p-6 text-center sm:p-10"
+                variants={slideVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{ duration: 0.45, ease: "easeOut" }}
+                className="flex flex-col items-center"
               >
-                <Quote className="mx-auto h-8 w-8 text-accent/30" />
-
-                <blockquote className="mt-6 text-lg leading-relaxed text-foreground sm:text-xl">
-                  &ldquo;{item.quote}&rdquo;
+                {/* Quote text */}
+                <blockquote
+                  className="max-w-2xl text-xl leading-relaxed text-foreground sm:text-2xl md:text-[1.65rem] md:leading-[1.6]"
+                  style={{
+                    fontFamily: '"Cormorant Garamond", "Georgia", serif',
+                    fontStyle: "italic",
+                    fontWeight: 400,
+                  }}
+                >
+                  {item.quote}
                 </blockquote>
 
-                <div className="mt-6 flex flex-col items-center gap-3">
-                  {item.avatar_url ? (
-                    <Image
-                      src={item.avatar_url}
-                      alt={item.name}
-                      width={48}
-                      height={48}
-                      className="rounded-full object-cover"
-                    />
-                  ) : (
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-accent/10 font-heading text-lg font-bold text-accent">
-                      {item.name.charAt(0)}
-                    </div>
-                  )}
-                  <div>
-                    <p className="font-heading font-semibold text-foreground">
+                {/* Author */}
+                <div className="mt-8 flex items-center gap-3">
+                  <InlineProfileAvatar
+                    src={item.avatar_url}
+                    fallback={initials(item.name)}
+                  />
+                  <div className="text-left">
+                    <p className="text-sm font-semibold text-foreground">
                       {item.name}
                     </p>
                     {item.company && (
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-xs text-muted-foreground">
                         {item.company}
                       </p>
                     )}
@@ -115,42 +168,54 @@ export function Testimonials({
           </div>
 
           {/* Navigation */}
-          {testimonials.length > 1 && (
-            <div className="mt-6 flex items-center gap-4">
+          {count > 1 && (
+            <div className="mt-8 flex items-center justify-center gap-5">
+              {/* Left arrow — visible on mobile, hover-reveal on desktop */}
               <button
-                onClick={prev}
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-border text-foreground transition-colors hover:bg-muted"
+                onClick={goPrev}
+                className={cn(
+                  "inline-flex h-9 w-9 items-center justify-center rounded-full border border-border text-foreground transition-all hover:bg-muted",
+                  "md:opacity-0 md:group-hover:opacity-100",
+                  hovered && "md:opacity-100",
+                )}
                 aria-label={t("previousTestimonial")}
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
 
+              {/* Dots */}
               <div className="flex gap-1.5">
                 {testimonials.map((_, i) => (
                   <button
                     key={i}
                     onClick={() => setCurrent(i)}
-                    className={`h-2 rounded-full transition-all ${
+                    className={cn(
+                      "h-1.5 rounded-full transition-all duration-300",
                       i === current
                         ? "w-6 bg-accent"
-                        : "w-2 bg-muted-foreground/30 hover:bg-muted-foreground/50"
-                    }`}
+                        : "w-1.5 bg-muted-foreground/25 hover:bg-muted-foreground/50",
+                    )}
                     aria-label={t("goToTestimonial", { number: i + 1 })}
                   />
                 ))}
               </div>
 
+              {/* Right arrow */}
               <button
-                onClick={next}
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-border text-foreground transition-colors hover:bg-muted"
+                onClick={goNext}
+                className={cn(
+                  "inline-flex h-9 w-9 items-center justify-center rounded-full border border-border text-foreground transition-all hover:bg-muted",
+                  "md:opacity-0 md:group-hover:opacity-100",
+                  hovered && "md:opacity-100",
+                )}
                 aria-label={t("nextTestimonial")}
               >
                 <ChevronRight className="h-4 w-4" />
               </button>
             </div>
           )}
-        </motion.div>
-      </div>
-    </section>
+        </div>
+      </section>
+    </>
   );
 }

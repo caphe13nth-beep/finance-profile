@@ -9,8 +9,9 @@ import { useSettings } from "@/lib/settings-provider";
 import {
   Search, FileText, Home, User, Briefcase, FolderOpen,
   Mail, BookOpen, BarChart3, Wrench, Sun, Moon, Settings,
-  ArrowRight,
+  ArrowRight, Globe,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface SearchResult {
   id: string;
@@ -18,6 +19,14 @@ interface SearchResult {
   slug: string;
   category: string | null;
 }
+
+// ── Shared item classes ────────────────────────────
+
+const itemCls = cn(
+  "group flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-foreground outline-none transition-colors",
+  "border-l-2 border-transparent",
+  "aria-selected:border-accent aria-selected:bg-accent/[0.08]",
+);
 
 export function CommandPalette() {
   const [open, setOpen] = useState(false);
@@ -84,122 +93,157 @@ export function CommandPalette() {
 
   // Build page links from visibility
   const pages = [
-    { label: "Home", href: "/", icon: Home, always: true },
-    { label: "About", href: "/about", icon: User, key: "about" as const },
-    { label: "Services", href: "/services", icon: Briefcase, key: "services" as const },
-    { label: "Portfolio", href: "/portfolio", icon: FolderOpen, key: "portfolio" as const },
-    { label: "Blog", href: "/blog", icon: BookOpen, key: "blog" as const },
-    { label: "Insights", href: "/insights", icon: BarChart3, key: "market_insights" as const },
-    { label: "Contact", href: "/contact", icon: Mail, key: "contact" as const },
-    { label: "Tools", href: "/tools", icon: Wrench, key: "tools" as const },
+    { label: "Home", href: "/", icon: Home, desc: "Homepage", always: true },
+    { label: "About", href: "/about", icon: User, desc: "Bio & career", key: "about" as const },
+    { label: "Services", href: "/services", icon: Briefcase, desc: "What I offer", key: "services" as const },
+    { label: "Portfolio", href: "/portfolio", icon: FolderOpen, desc: "Case studies", key: "portfolio" as const },
+    { label: "Blog", href: "/blog", icon: BookOpen, desc: "Articles & insights", key: "blog" as const },
+    { label: "Insights", href: "/insights", icon: BarChart3, desc: "Market analysis", key: "market_insights" as const },
+    { label: "Contact", href: "/contact", icon: Mail, desc: "Get in touch", key: "contact" as const },
+    { label: "Tools", href: "/tools", icon: Wrench, desc: "Calculators & utilities", key: "tools" as const },
   ].filter((p) => p.always || (p.key && page_visibility[p.key]));
 
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[80]">
-      {/* Backdrop */}
+    <div className="fixed inset-0 z-[80] flex items-start justify-center pt-[15vh] sm:pt-[18vh]">
+      {/* Backdrop — blur 8px */}
       <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/50 backdrop-blur-[8px]"
         onClick={() => setOpen(false)}
       />
 
-      {/* Dialog */}
-      <div className="relative mx-auto mt-0 h-full w-full px-0 sm:mt-[15vh] sm:h-auto sm:max-w-lg sm:px-4">
-        <Command
-          className="flex h-full flex-col overflow-hidden border-border bg-card shadow-2xl sm:rounded-xl sm:border"
-          shouldFilter={false}
-        >
-          {/* Search input */}
-          <div className="flex items-center gap-2 border-b border-border px-4">
-            <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
+      {/* Dialog — spotlight style */}
+      <div
+        className="cmd-dialog relative w-full max-w-[560px] mx-4 overflow-hidden rounded-xl border border-border bg-card shadow-[0_25px_60px_-12px_rgba(0,0,0,0.35)]"
+      >
+        <Command shouldFilter={false} className="flex flex-col">
+          {/* Search input — large, borderless */}
+          <div className="flex items-center gap-3 px-5 py-4">
+            <Search className="h-5 w-5 shrink-0 text-muted-foreground" />
             <Command.Input
               value={query}
               onValueChange={setQuery}
-              placeholder="Search posts, navigate pages..."
-              className="h-12 flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+              placeholder="Search pages, posts, actions…"
+              className="flex-1 bg-transparent text-[1.25rem] text-foreground placeholder:text-muted-foreground/60 focus:outline-none"
+              autoFocus
             />
-            <kbd className="hidden rounded border border-border bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground sm:inline">
-              ESC
-            </kbd>
           </div>
 
-          <Command.List className="max-h-[50vh] overflow-y-auto p-2">
-            <Command.Empty className="py-6 text-center text-sm text-muted-foreground">
-              {loading ? "Searching..." : "No results found."}
+          <div className="h-px bg-border" />
+
+          {/* Results list */}
+          <Command.List className="max-h-[50vh] overflow-y-auto px-2 py-2">
+            <Command.Empty className="py-8 text-center text-sm text-muted-foreground">
+              {loading ? "Searching…" : "No results found."}
             </Command.Empty>
 
-            {/* Search results */}
+            {/* Blog post search results */}
             {results.length > 0 && (
-              <Command.Group heading="Blog Posts">
+              <Command.Group
+                heading="Blog Posts"
+                className="[&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-wider [&_[cmdk-group-heading]]:text-muted-foreground/60"
+              >
                 {results.map((post) => (
                   <Command.Item
                     key={post.id}
                     value={post.title}
                     onSelect={() => navigate(`/blog/${post.slug}`)}
-                    className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-3 text-sm text-foreground aria-selected:bg-accent/10"
+                    className={itemCls}
                   >
                     <FileText className="h-4 w-4 shrink-0 text-accent" />
                     <div className="min-w-0 flex-1">
                       <p className="truncate font-medium">{post.title}</p>
-                      {post.category && (
-                        <p className="text-xs text-muted-foreground">{post.category}</p>
-                      )}
                     </div>
-                    <ArrowRight className="h-3 w-3 shrink-0 text-muted-foreground" />
+                    {post.category && (
+                      <span className="shrink-0 text-xs text-muted-foreground">{post.category}</span>
+                    )}
+                    <ArrowRight className="h-3 w-3 shrink-0 text-muted-foreground opacity-0 transition-opacity group-aria-selected:opacity-100" />
                   </Command.Item>
                 ))}
               </Command.Group>
             )}
 
             {/* Pages */}
-            <Command.Group heading="Pages">
-              {pages.map(({ label, href, icon: Icon }) => (
+            <Command.Group
+              heading="Pages"
+              className="[&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-wider [&_[cmdk-group-heading]]:text-muted-foreground/60"
+            >
+              {pages.map(({ label, href, icon: Icon, desc }) => (
                 <Command.Item
                   key={href}
                   value={label}
                   onSelect={() => navigate(href)}
-                  className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-3 text-sm text-foreground aria-selected:bg-accent/10"
+                  className={itemCls}
                 >
                   <Icon className="h-4 w-4 shrink-0 text-muted-foreground" />
-                  <span>{label}</span>
+                  <span className="flex-1">{label}</span>
+                  <span className="shrink-0 text-xs text-muted-foreground">{desc}</span>
                 </Command.Item>
               ))}
             </Command.Group>
 
             {/* Actions */}
-            <Command.Group heading="Actions">
+            <Command.Group
+              heading="Actions"
+              className="[&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-wider [&_[cmdk-group-heading]]:text-muted-foreground/60"
+            >
               <Command.Item
                 value="Toggle dark mode"
                 onSelect={toggleTheme}
-                className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-3 text-sm text-foreground aria-selected:bg-accent/10"
+                className={itemCls}
               >
                 {resolvedTheme === "dark" ? (
                   <Sun className="h-4 w-4 shrink-0 text-muted-foreground" />
                 ) : (
                   <Moon className="h-4 w-4 shrink-0 text-muted-foreground" />
                 )}
-                <span>Toggle {resolvedTheme === "dark" ? "Light" : "Dark"} Mode</span>
+                <span className="flex-1">
+                  Toggle {resolvedTheme === "dark" ? "Light" : "Dark"} Mode
+                </span>
+                <span className="shrink-0 text-xs text-muted-foreground">Appearance</span>
+              </Command.Item>
+
+              <Command.Item
+                value="Change language"
+                onSelect={() => {}}
+                className={itemCls}
+              >
+                <Globe className="h-4 w-4 shrink-0 text-muted-foreground" />
+                <span className="flex-1">Change Language</span>
+                <span className="shrink-0 text-xs text-muted-foreground">Locale</span>
               </Command.Item>
 
               <Command.Item
                 value="Admin Dashboard"
                 onSelect={() => navigate("/admin")}
-                className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-3 text-sm text-foreground aria-selected:bg-accent/10"
+                className={itemCls}
               >
                 <Settings className="h-4 w-4 shrink-0 text-muted-foreground" />
-                <span>Admin Dashboard</span>
+                <span className="flex-1">Admin Dashboard</span>
+                <span className="shrink-0 text-xs text-muted-foreground">Manage</span>
               </Command.Item>
             </Command.Group>
           </Command.List>
 
-          {/* Footer hint */}
-          <div className="flex items-center justify-between border-t border-border px-4 py-2 text-xs text-muted-foreground">
-            <span>Navigate with ↑↓ · Select with ↵</span>
-            <span>
-              <kbd className="rounded border border-border bg-muted px-1 py-0.5 text-[10px]">⌘</kbd>
-              {" + "}
-              <kbd className="rounded border border-border bg-muted px-1 py-0.5 text-[10px]">K</kbd>
+          {/* Footer — keyboard hints */}
+          <div className="flex items-center gap-4 border-t border-border px-4 py-2.5 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1">
+              <kbd className="cmd-kbd">↑</kbd>
+              <kbd className="cmd-kbd">↓</kbd>
+              navigate
+            </span>
+            <span className="flex items-center gap-1">
+              <kbd className="cmd-kbd">↵</kbd>
+              select
+            </span>
+            <span className="flex items-center gap-1">
+              <kbd className="cmd-kbd">esc</kbd>
+              close
+            </span>
+            <span className="ml-auto flex items-center gap-0.5">
+              <kbd className="cmd-kbd">⌘</kbd>
+              <kbd className="cmd-kbd">K</kbd>
             </span>
           </div>
         </Command>

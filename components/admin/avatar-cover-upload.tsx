@@ -16,9 +16,11 @@ import {
   Check,
   Image as ImageIcon,
   Move,
+  FolderOpen,
 } from "lucide-react";
 import { uploadFile } from "@/app/actions/storage";
 import { ProfileAvatar } from "@/components/ui/profile-avatar";
+import { MediaPickerDialog } from "@/components/admin/media-picker-dialog";
 import { cn } from "@/lib/utils";
 
 // ── Helpers ────────────────────────────────────────
@@ -236,6 +238,7 @@ interface DropzoneProps {
   uploading: boolean;
   onFile: (file: File) => void;
   onRemove: () => void;
+  onPickFromLibrary: () => void;
   children?: React.ReactNode; // live preview slot
   className?: string;
 }
@@ -248,6 +251,7 @@ function Dropzone({
   uploading,
   onFile,
   onRemove,
+  onPickFromLibrary,
   children,
   className,
 }: DropzoneProps) {
@@ -329,6 +333,17 @@ function Dropzone({
                 Drop image or <span className="font-medium text-accent">browse</span>
               </p>
               <p className="mt-0.5 text-xs text-muted-foreground/60">{hint}</p>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onPickFromLibrary();
+                }}
+                className="mt-2 inline-flex items-center gap-1 rounded-md border border-border px-2.5 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              >
+                <FolderOpen className="h-3 w-3" />
+                Media Library
+              </button>
             </>
           )}
         </div>
@@ -366,6 +381,7 @@ export function AvatarCoverUpload({
   const [cropTarget, setCropTarget] = useState<"avatar" | "cover" | null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
+  const [pickerTarget, setPickerTarget] = useState<"avatar" | "cover" | null>(null);
 
   const doUpload = useCallback(
     async (
@@ -421,6 +437,7 @@ export function AvatarCoverUpload({
           uploading={uploadingAvatar}
           onFile={(f) => openCrop(f, "avatar")}
           onRemove={() => onAvatarChange(null)}
+          onPickFromLibrary={() => setPickerTarget("avatar")}
         >
           {avatarUrl && (
             <div className="flex items-center justify-center rounded-xl border border-border bg-muted/30 p-4" style={{ aspectRatio: "1" }}>
@@ -443,6 +460,7 @@ export function AvatarCoverUpload({
           uploading={uploadingCover}
           onFile={(f) => openCrop(f, "cover")}
           onRemove={() => onCoverChange(null)}
+          onPickFromLibrary={() => setPickerTarget("cover")}
         />
       </div>
 
@@ -455,6 +473,16 @@ export function AvatarCoverUpload({
           onCancel={handleCropCancel}
         />
       )}
+
+      {/* Media library picker */}
+      <MediaPickerDialog
+        open={pickerTarget !== null}
+        onClose={() => setPickerTarget(null)}
+        onSelect={(url) => {
+          if (pickerTarget === "avatar") onAvatarChange(url);
+          else if (pickerTarget === "cover") onCoverChange(url);
+        }}
+      />
     </>
   );
 }

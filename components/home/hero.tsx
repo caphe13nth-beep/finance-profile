@@ -6,6 +6,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, Download } from "lucide-react";
 import { useSettings } from "@/lib/settings-provider";
+import { ProfileAvatar } from "@/components/ui/profile-avatar";
 import { cn } from "@/lib/utils";
 
 // Same noise URI used in ProfileAvatar — lightweight film-grain texture
@@ -15,8 +16,11 @@ const NOISE_URI =
 export function Hero() {
   const { hero_content, site_identity } = useSettings();
   const coverUrl = site_identity.cover_image_url;
+  const avatarUrl = site_identity.avatar_url;
+  const avatarShape = site_identity.avatar_shape ?? "squircle";
   const overlay = site_identity.cover_overlay ?? "gradient-mesh";
   const hasCover = !!coverUrl;
+  const hasAvatar = !!avatarUrl;
 
   // ── Parallax: translate cover image at 0.5× scroll speed ──
   const sectionRef = useRef<HTMLElement>(null);
@@ -131,6 +135,17 @@ export function Hero() {
               "rounded-2xl border border-white/10 bg-background/60 px-8 py-10 shadow-2xl backdrop-blur-xl sm:px-12 sm:py-14",
           )}
         >
+          {hasAvatar && (
+            <div className="mb-6 scale-[0.8] origin-left sm:scale-100">
+              <ProfileAvatar
+                src={avatarUrl}
+                fallback={site_identity.site_name?.slice(0, 2) ?? "??"}
+                size="xl"
+                shape={avatarShape}
+              />
+            </div>
+          )}
+
           <h1
             className={cn(
               "font-heading text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl",
